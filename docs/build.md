@@ -32,3 +32,7 @@ To sign with your own PKCS12 keystore, supply `-Keystore` and `-KeyAlias` and se
 - **Browser interface.** Install Google Chrome and the [Python Playwright package](https://playwright.dev/python/docs/library). Run `python tools/test-expansion-ui.py`. The default fixtures exercise both games without a game save. To supply your own recorded JSON frames, pass `--ffx-frame` and `--x2-frame`.
 
 For tested disc versions, emulator settings and the optional Steam bridge, see the [installation guide](../INSTALL.md). The [validation notes](../THOR-VALIDATION.md) distinguish device tests from capture replays.
+
+## Package the source for a release
+
+From the tagged release, run `git archive --format=zip --prefix=SpiraCompanion-source/ -o dist/SpiraCompanion-source.zip HEAD`. Attach that ZIP to the GitHub release alongside the APK. The README’s source download points to the latest release asset with that filename.

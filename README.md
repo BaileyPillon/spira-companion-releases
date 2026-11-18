@@ -2,7 +2,9 @@
 
 <p align="center">A live second screen for <strong>Final Fantasy X International</strong> and <strong>Final Fantasy X-2 USA</strong> on the AYN Thor. Connects through ARMSX2 with PINE enabled.</p>
 
-<p align="center"><strong><a href="https://github.com/BaileyPillon/spira-companion-releases/releases/latest/download/SpiraCompanion.apk">Download the Android APK</a></strong> &nbsp;·&nbsp; <a href="#set-up-your-thor">Quick start</a> &nbsp;·&nbsp; <a href="docs/player-guide.md">Player guide</a> &nbsp;·&nbsp; <a href="#source-code">Source code</a> &nbsp;·&nbsp; <a href="https://github.com/BaileyPillon/spira-companion-releases/releases/latest">Release notes</a></p>
+<p align="center"><strong><a href="app/">Browse source code</a></strong> &nbsp;·&nbsp; <strong><a href="https://github.com/BaileyPillon/spira-companion-releases/releases/latest/download/SpiraCompanion-source.zip">Download source ZIP</a></strong> &nbsp;·&nbsp; <a href="https://github.com/BaileyPillon/spira-companion-releases/releases/latest/download/SpiraCompanion.apk">Install the Android APK</a></p>
+
+<p align="center"><a href="app/src/Ps2Feed.java">Emulator reader (Java)</a> &nbsp;·&nbsp; <a href="app/assets/spira.js">Companion interface (JavaScript)</a> &nbsp;·&nbsp; <a href="docs/build.md">Build instructions</a> &nbsp;·&nbsp; <a href="docs/player-guide.md">Player guide</a></p>
 
 <picture>
   <source media="(max-width: 640px)" srcset="docs/images/zanarkand-mobile.webp">
