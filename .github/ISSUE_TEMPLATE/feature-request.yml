@@ -1,0 +1,17 @@
+name: Feature idea
+description: Suggest a second-screen feature for a specific moment in either game.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: moment
+    attributes:
+      label: What were you doing in the game?
+      description: Mention the game and the part of the run where you wanted help.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you want the bottom screen to show or do?
+    validations:
+      required: true
