@@ -1,4 +1,4 @@
-<h1 align="center"><img src="docs/images/spira-companion.png" width="40" height="40" align="middle" alt=""> Spira Companion</h1>
+<h1 align="center"><img src="docs/images/spira-companion.png" width="72" height="72" align="middle" alt="Yuna holding her summoner’s staff"> Spira Companion</h1>
 
 <p align="center">A live second screen for <strong>Final Fantasy X International</strong> and <strong>Final Fantasy X-2 USA</strong> on the AYN Thor. Connects through ARMSX2 with PINE enabled.</p>
 

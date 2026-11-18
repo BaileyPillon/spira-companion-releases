@@ -52,7 +52,7 @@ try {
         & cmd.exe /d /c 'call "%SPIRA_VCVARS%" >nul && cl /nologo /std:c++17 /EHsc /O2 /MT /W4 /DUNICODE /D_UNICODE /Fo"bridge.obj" /Fe"SpiraBridge.exe" "%SPIRA_BRIDGE_CPP%" user32.lib /link /SUBSYSTEM:WINDOWS /ENTRY:wmainCRTStartup'
     }
     & "$BuildTools\aapt2.exe" compile --dir "$root/app/res" -o resources.zip
-    & "$BuildTools\aapt2.exe" link -o base.apk -I $AndroidJar --manifest "$root/app/AndroidManifest.xml" -R resources.zip
+    & "$BuildTools\aapt2.exe" link -o base.apk -I $AndroidJar --manifest "$root/app/AndroidManifest.xml" resources.zip
     & "$Jdk\bin\javac.exe" -source 11 -target 11 -Xlint:-options -encoding UTF-8 -cp $AndroidJar -d $classes.FullName "$root/app/src/MainActivity.java" "$root/app/src/Ps2Feed.java"
     & "$Jdk\bin\jar.exe" cf classes.jar -C $classes.FullName .
     & "$BuildTools\d8.bat" --release --min-api 30 --lib $AndroidJar --output $dex.FullName classes.jar

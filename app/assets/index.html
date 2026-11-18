@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; frame-src https://guide.spira.invalid">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self'; frame-src https://guide.spira.invalid">
 <title>Spira Companion</title>
+<link rel="icon" type="image/webp" href="spira-icon.webp">
 <link rel="stylesheet" href="spira.css">
 <script src="catalog.js" defer></script>
 <script src="ffx-data.js" defer></script>
@@ -71,7 +72,7 @@
 </head>
 <body>
 <header>
-  <div class="identity"><span class="mark" aria-hidden="true"></span><span>Spira Companion</span></div>
+  <div class="identity"><img src="spira-icon.webp" width="36" height="36" alt=""><span>Spira Companion</span></div>
   <div id="connection" class="connection" role="status" data-state="waiting">Waiting</div>
 </header>
 <div class="layout">

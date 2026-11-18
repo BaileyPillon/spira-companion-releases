@@ -22,6 +22,7 @@ with sync_playwright() as p:
     page=browser.new_page(viewport={'width':620,'height':700},device_scale_factor=1)
     page.on('pageerror',lambda e:errors.append(str(e)))
     page.goto((root/'app/assets/index.html').as_uri())
+    page.locator('.identity img').evaluate('(image) => image.decode()')
     actor = dict(id=0, active=True, hp=1500, maxHp=1500, mp=50, maxMp=50)
     common = dict(schema=1, status='live', gil=1000, battles=25, items=[[8193, 2]])
     ffx = dict(common, game='x', disc='SLPS-25088', crc='658597E2', room=255, story=2000, battle=True,

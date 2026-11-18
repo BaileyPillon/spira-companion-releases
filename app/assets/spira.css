@@ -44,9 +44,8 @@ input, textarea { caret-color: var(--accent); }
 html, body { margin: 0; height: 100%; }
 body { color: var(--text); background: var(--bg); display: flex; flex-direction: column; }
 header { min-height: 48px; padding: 0 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); background: #12232b; }
-.identity { display: flex; align-items: center; gap: 13px; font-size: 16px; font-weight: 650; }
-.mark { width: 13px; height: 13px; border: 1px solid var(--accent); transform: rotate(45deg); position: relative; }
-.mark::after { content: ""; position: absolute; inset: 3px; border: 1px solid var(--accent); }
+.identity { display: flex; align-items: center; gap: 9px; font-size: 16px; font-weight: 650; }
+.identity img { flex: none; }
 .connection { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 13px; white-space: nowrap; }
 .connection::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 .connection[data-state="live"] { color: var(--accent); }

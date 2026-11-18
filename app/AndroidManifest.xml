@@ -1,9 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.spiracompanion.thor" android:versionCode="49" android:versionName="1.39.0">
+    package="com.spiracompanion.thor" android:versionCode="50" android:versionName="1.39.1">
     <uses-sdk android:minSdkVersion="30" android:targetSdkVersion="34" />
     <uses-permission android:name="android.permission.INTERNET" />
     <application android:label="Spira Companion" android:theme="@android:style/Theme.Material.NoActionBar"
-        android:icon="@drawable/spira_icon" android:allowBackup="false" android:usesCleartextTraffic="false">
+        android:icon="@mipmap/spira_icon" android:roundIcon="@mipmap/spira_icon"
+        android:allowBackup="false" android:usesCleartextTraffic="false">
         <activity android:name=".MainActivity" android:exported="true"
             android:resizeableActivity="true" android:launchMode="singleTask"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">

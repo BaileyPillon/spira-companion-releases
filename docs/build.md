@@ -35,6 +35,17 @@ For tested disc versions, emulator settings and the optional Steam bridge, see t
 
 For the 1.39 gameplay fixes, run `python tools/test-review-fixes-ui.py` with the same Chrome and Playwright setup. The main browser suite also exercises the farming ledger, chapter bookmarks and the other planning tools.
 
+## Icon artwork
+
+The [Yuna portrait](images/spira-companion.png) is the source image for the GitHub README, Android launcher and companion header. From the repository root, run `pwsh -File tools/export-icon.ps1` with FFmpeg on your PATH to regenerate the bundled WebP images. Both Android launcher modes use the same crop. The themed version preserves the staff petals and facial features in the alpha channel so the launcher can tint them.
+
+<details>
+<summary>Illustration prompt (OpenAI ImageGen)</summary>
+
+Design one polished square illustrated launcher emblem for the fan-made Spira Companion. Make Yuna from Final Fantasy X instantly recognizable: tight three-quarter bust, chestnut asymmetrical bob with swept bangs and the long blue bead-and-gold earring on her right ear, calm and determined gaze, white crossed summoner collar, dark camisole, just a trace of lilac. Beside her face, show her iconic royal-blue summoner staff and unmistakable large openwork golden flower-wheel head, its scalloped petal lobes and red center clear in silhouette. Compose as one extremely clear circular movement, with Yuna and staff overlapping, the face and crown centered; use a small ivory gull-wing shape formed by the trailing sleeve to suggest X-2. A few coral / aqua pyrefly accents only if they strengthen the silhouette. Elegant Japanese console-RPG collector pin illustration, crisp hand-inked contours, bold flat cel-shaded shapes, midnight indigo shadow, warm bone-white, saffron gold, and tropical turquoise. Use a substantial outer silhouette, high contrast on very dark teal #132C34. Make head and staff crown large relative to the rest: immediate recognition at 32px; minimal fine lines. A single tight foreground cutout with a sculpted lower contour that feels complete, no square crop through the shoulders, 6% transparent clearance on all sides. Genuine transparent background, no enclosing tile, no medallion rim, no letters, words, watermark or official wordmarks. Deliver just the finished 1:1 artwork, no mockup or presentation sheet.
+
+</details>
+
 ## Package the source for a release
 
 From the tagged release, run `git archive --format=zip --prefix=SpiraCompanion-source/ -o dist/SpiraCompanion-source.zip HEAD`. Attach that ZIP to the GitHub release alongside the APK. The README’s source download points to the latest release asset with that filename.
