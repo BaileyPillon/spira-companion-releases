@@ -2,7 +2,7 @@
 
 <p align="center">A live second screen for <strong>Final Fantasy X International</strong> and <strong>Final Fantasy X-2 USA</strong> on the AYN Thor. Connects through ARMSX2 with PINE enabled.</p>
 
-<p align="center"><strong><a href="https://github.com/BaileyPillon/spira-companion-releases/releases/latest/download/SpiraCompanion.apk">Download the Android APK</a></strong> &nbsp;·&nbsp; <a href="#set-up-your-thor">Quick start</a> &nbsp;·&nbsp; <a href="docs/player-guide.md">Player guide</a> &nbsp;·&nbsp; <a href="https://github.com/BaileyPillon/spira-companion-releases/releases/latest">Release notes</a></p>
+<p align="center"><strong><a href="https://github.com/BaileyPillon/spira-companion-releases/releases/latest/download/SpiraCompanion.apk">Download the Android APK</a></strong> &nbsp;·&nbsp; <a href="#set-up-your-thor">Quick start</a> &nbsp;·&nbsp; <a href="docs/player-guide.md">Player guide</a> &nbsp;·&nbsp; <a href="#source-code">Source code</a> &nbsp;·&nbsp; <a href="https://github.com/BaileyPillon/spira-companion-releases/releases/latest">Release notes</a></p>
 
 <picture>
   <source media="(max-width: 640px)" srcset="docs/images/zanarkand-mobile.webp">
@@ -57,6 +57,14 @@ The **Chapter Checklist** can take you from a missing scene to the place you nee
 | FFX-2 International | `SLPM-65478` | `E1FD9A2D` | Limited support, checked with an opening save |
 
 Spira matches both values. Patched discs can report a different CRC. Tracking is read-only by default. [Optional settings](docs/player-guide.md#connection-help)
+
+## Source code
+
+The [Android app](app/src/) reads the emulator through PINE. The [companion interface](app/assets/) turns each live frame into maps, battle tools and checklists for the bottom screen. The [optional Windows bridge](bridge/) reads the Steam HD Remaster.
+
+[Build and test Spira](docs/build.md) · [Browse regression tests](tests/) · [Data generators and test tools](tools/)
+
+Spira’s original code is available under the [MIT License](LICENSE). The bundled reference data and third-party components retain their [upstream notices](docs/player-guide.md#credits). Final Fantasy names and artwork belong to their respective owners.
 
 ## Feedback
 

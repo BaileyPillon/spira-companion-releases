@@ -52,4 +52,6 @@ The original HTML export is 40,660,758 bytes. Its SHA-256 checksum is `5cf7b6425
 
 ## Credits
 
+Bundled notices accompany the reference data from [FFX RNG Tracker](../app/assets/LICENSE-FFX-RNG-tracker.txt), [FFX Sphere Grid Viewer](../app/assets/LICENSE-FFX-Sphere-Grid-viewer.txt) and [noclip.website](../app/assets/LICENSE-noclip.txt).
+
 The second-screen workflow was inspired by [Cybranfox’s FFXII Thor Companion](https://github.com/Cybranfox/ffxii-thor-companion). FFX reference data draws on [FFX RNG Tracker](https://github.com/Grayfox96/FFX-RNG-tracker), [FFX Sphere Grid Viewer](https://github.com/Grayfox96/FFX-Sphere-Grid-viewer) and [noclip.website](https://github.com/magcius/noclip.website). FFX-2 scene guidance draws on [retail PS2 flag research](https://github.com/Sonicshadowsilver2/Final-Fantasy-X-2-Coding/wiki/Percentage-Flags). The optional offline walkthrough is by [Jegged](https://jegged.com/Games/Final-Fantasy-X/).

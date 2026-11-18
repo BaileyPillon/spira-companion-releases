@@ -1,0 +1,16 @@
+/build/
+/dist/
+/local-save-backup/
+*.apk
+*.chd
+*.iso
+*.vbf
+*.ps2
+*.p2s
+*.p12
+*.jks
+*.keystore
+*.idsig
+.env
+.env.*
+__pycache__/

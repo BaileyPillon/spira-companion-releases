@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; frame-src https://guide.spira.invalid">
+<title>Spira Companion</title>
+<link rel="stylesheet" href="spira.css">
+<script src="catalog.js" defer></script>
+<script src="ffx-data.js" defer></script>
+<script src="ffx-mix-data.js" defer></script>
+<script src="ffx-mix.js" defer></script>
+<script src="ffx-rooms.js" defer></script>
+<script src="equip-compare.js" defer></script>
+<script src="battle-tactics.js" defer></script>
+<script src="ffx.js" defer></script>
+<script src="ffx-progress.js" defer></script>
+<script src="ffx-arena.js" defer></script>
+<script src="ffx-encounter-data.js" defer></script>
+<script src="ffx-hunt.js" defer></script>
+<script src="ffx-customization-data.js" defer></script>
+<script src="ffx-customization.js" defer></script>
+<script src="ffx-gear-drop-data.js" defer></script>
+<script src="ffx-gear-drops.js" defer></script>
+<script src="ffx-collections.js" defer></script>
+<script src="ffx-challenges.js" defer></script>
+<script src="ffx-blitzball.js" defer></script>
+<script src="ffx-blitz-stats-data.js" defer></script>
+<script src="ffx-blitz-team.js" defer></script>
+<script src="ffx-field-guide-data.js" defer></script>
+<script src="ffx-yojimbo.js" defer></script>
+<script src="ffx-prep.js" defer></script>
+<script src="ffx-overdrive.js" defer></script>
+<script src="ffx-endgame.js" defer></script>
+<script src="ffx2-story-data.js" defer></script>
+<script src="ffx2-scene-routes.js" defer></script>
+<script src="ffx2-ap-data.js" defer></script>
+<script src="ffx2-grid-data.js" defer></script>
+<script src="ffx2-grid-plan.js" defer></script>
+<script src="ffx2-dressphere-hunt.js" defer></script>
+<script src="ffx2-bestiary-data.js" defer></script>
+<script src="ffx2.js" defer></script>
+<script src="ffx2-crimson.js" defer></script>
+<script src="ffx2-sphere-break.js" defer></script>
+<script src="ffx2-publicity-data.js" defer></script>
+<script src="ffx2-calm-lands.js" defer></script>
+<script src="ffx2-experiment.js" defer></script>
+<script src="ffx2-towers.js" defer></script>
+<script src="ffx2-field-guide.js" defer></script>
+<script src="fiend-journal.js" defer></script>
+<script src="cheats.js" defer></script>
+<script src="story.js" defer></script>
+<script src="guide-suggestions.js" defer></script>
+<script src="ffx-guide.js" defer></script>
+<script src="live-coach.js" defer></script>
+<script src="profiles.js" defer></script>
+<script src="workspace.js" defer></script>
+<script src="goal-planner.js" defer></script>
+<script src="grid-sandbox.js" defer></script>
+<script src="ffx2-scene-audit.js" defer></script>
+<script src="battle-model-data.js" defer></script>
+  <script src="battle-model.js" defer></script>
+  <script src="blitz-live.js" defer></script>
+  <script src="cloister-live.js" defer></script>
+<script src="butterfly-route-data.js" defer></script>
+<script src="butterfly-coach.js" defer></script>
+<script src="spira.js" defer></script>
+</head>
+<body>
+<header>
+  <div class="identity"><span class="mark" aria-hidden="true"></span><span>Spira Companion</span></div>
+  <div id="connection" class="connection" role="status" data-state="waiting">Waiting</div>
+</header>
+<div class="layout">
+  <nav aria-label="Companion views">
+    <button data-tab="status" aria-current="page">Status</button>
+    <button data-tab="workspace">Workspace</button>
+    <button data-tab="planner" data-ffx hidden>Goal Plan</button>
+    <button data-tab="guide">Guide</button>
+    <button data-tab="party">Party</button>
+    <button data-tab="supplies">Items</button>
+    <button data-tab="mix" data-mix hidden>Mix</button>
+    <button data-tab="equip" hidden>Equip</button>
+    <button data-tab="prep" data-ffx hidden>Boss Prep</button>
+    <button data-tab="grid" data-ffx hidden>Sphere Grid</button>
+    <button data-tab="bestiary" data-ffx hidden>Bestiary</button>
+    <button data-tab="x2-bestiary" hidden>Bestiary</button>
+    <button data-tab="arena" data-ffx hidden>Arena</button>
+    <button data-tab="blitzball" data-ffx hidden>Blitzball</button>
+    <button data-tab="challenges" hidden>Challenges</button>
+    <button data-tab="map" data-ps2 hidden>Map</button>
+    <button data-tab="missables" data-progress hidden>Missables</button>
+    <button data-tab="collections" data-progress hidden>Collections</button>
+    <button data-tab="chapter-checklist" hidden>Chapter Checklist</button>
+    <button data-tab="field-guide" hidden>Fiend Guide</button>
+    <button data-tab="journal">Journal</button>
+    <button data-tab="cheats" hidden>Cheats</button>
+    <button data-tab="setup" class="setup-link">Setup</button>
+  </nav>
+  <main id="panel" tabindex="-1"></main>
+  <section id="guide" class="guide-reader" aria-label="Jegged walkthrough" hidden></section>
+</div>
+</body>
+</html>

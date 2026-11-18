@@ -1,0 +1,91 @@
+<style>
+  html { scroll-padding-top: 14px; }
+  body { overflow-anchor: none; }
+  #current-location { display: none !important; }
+  main { padding: 14px 16px 30px !important; }
+  article > h1 { scroll-margin-top: 0; }
+  a:focus-visible { outline: 2px solid #91e1cf; outline-offset: 2px; }
+  .guide-source { margin: 0 0 15px; font-size: .86rem; color: #b8c2cf; }
+</style>
+<script>
+(() => {
+  "use strict";
+  const report = kind => window.parent.postMessage({kind}, "*");
+  let idle;
+  let queued;
+  let navigationId;
+  let resizeAnchor;
+  // Any real scroll gesture gives the reader time to finish the paragraph.
+  function reading() {
+    report("reading");
+    clearTimeout(idle);
+    idle = setTimeout(() => report("idle"), 3200);
+  }
+  window.addEventListener("wheel", reading, {passive:true});
+  window.addEventListener("touchmove", reading, {passive:true});
+  document.addEventListener("keydown", event => {
+    if (["ArrowUp","ArrowDown","PageUp","PageDown","Home","End"," "].includes(event.key)) reading();
+    if (event.key === "Escape") report("exit-fullscreen");
+  });
+  document.addEventListener("click", event => {
+    const link = event.target.closest('a[href^="#"]');
+    if (!link) return;
+    event.preventDefault();
+    const id = link.getAttribute("href").slice(1);
+    if (id === "current-location") {
+      report("game");
+    } else {
+      report("browse");
+      jump(id);
+    }
+  });
+  function position(target) { target.scrollIntoView({block:"start", behavior:"instant"}); }
+  function jump(id) {
+    const section = document.getElementById(id);
+    if (!section) return;
+    const target = section.classList.contains("offline-chapter") ? section.closest("article")?.querySelector("h1") || section : section;
+    navigationId = id;
+    resizeAnchor = null;
+    position(target);
+    // Embedded images can complete layout after the initial jump.
+    clearTimeout(queued);
+    queued = setTimeout(() => {
+      if (navigationId === id && Math.abs(target.getBoundingClientRect().top - 14) < 160) position(target);
+    }, 120);
+  }
+  window.addEventListener("message", event => {
+    if (event.source !== window.parent) return;
+    if (event.data?.command === "jump" && typeof event.data.anchor === "string") jump(event.data.anchor);
+    if (event.data?.command === "remember-position") {
+      const left = Math.max(0, document.querySelector("main").getBoundingClientRect().left);
+      // Remember a visible line of text so a wider column does not move the
+      // reader to a different paragraph in the large, single-page document.
+      const range = document.caretRangeFromPoint(left + 26, 32);
+      const caret = range?.getBoundingClientRect();
+      const element = document.elementFromPoint(left + 26, 32);
+      const target = caret && Math.abs(caret.top - 32) < 36 ? range : element?.closest("p, h1, h2, h3, li, img");
+      resizeAnchor = target ? {target, top:target.getBoundingClientRect().top} : null;
+      report("position-ready");
+    }
+  });
+  window.addEventListener("resize", () => {
+    if (!resizeAnchor) return;
+    const {target, top} = resizeAnchor;
+    resizeAnchor = null;
+    window.scrollBy({top:target.getBoundingClientRect().top - top, behavior:"instant"});
+  });
+  const contents = document.getElementById("contents");
+  if (contents) {
+    const source = document.createElement("p");
+    source.className = "guide-source";
+    source.textContent = "Jegged · Complete offline walkthrough";
+    contents.insertBefore(source, contents.firstChild);
+  }
+  function ready() {
+    jump("contents");
+    report("ready");
+  }
+  if (document.readyState === "complete") ready();
+  else window.addEventListener("load", ready, {once:true});
+})();
+</script>
