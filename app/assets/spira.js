@@ -105,7 +105,6 @@ function update(raw, granted) {
   try { next = typeof raw === "string" ? JSON.parse(raw) : raw; } catch { next = null; }
   const valid = validFrame(next);
   const now = Date.now();
-  const previousLive = state === "live" && !reconnecting ? frame : null;
   // A short missed read can happen during an emulator transition. Keep the last
   // complete frame visible, with its connection status clearly marked.
   reconnecting = (!valid || next.status === "waiting") && state === "live" &&
@@ -113,7 +112,6 @@ function update(raw, granted) {
   if (reconnecting) {
     if (typeof updateLiveCoach === "function") updateLiveCoach(null);
     updateHuntSession(null);
-    if (typeof updateLightningTracking === "function") updateLightningTracking(null);
     showConnection("reconnecting");
     if (typeof updateGuide === "function") updateGuide(tab === "guide", frame, "reconnecting");
     render();
@@ -127,7 +125,7 @@ function update(raw, granted) {
     if (sample) sample = null;
   }
   if (state === "live") {
-    rememberExit(previousLive, next);
+    rememberExit(frame, next);
     if (typeof rememberFieldExploration === "function") rememberFieldExploration(next);
     if (typeof rememberX2Encounter === "function") rememberX2Encounter(next);
   }
@@ -136,8 +134,7 @@ function update(raw, granted) {
   if (typeof updateX2RanchWatch === "function" && state === "live") updateX2RanchWatch(next);
   frame = valid ? next : null;
   if (state === "live") {
-    if (!toolSupportsGame(tab, frame.game) ||
-        (!frame.grid && nav.some(button => button.hasAttribute("data-ffx") && button.dataset.tab === tab)) ||
+    if ((!frame.grid && nav.some(button => button.hasAttribute("data-ffx") && button.dataset.tab === tab)) ||
         (tab === "equip" && !frame.grid && !frame.loadout) ||
         (tab === "mix" && (frame.game !== "x" || !frame.disc)) ||
         (tab === "map" && !frame.disc) || (["missables","collections"].includes(tab) && !frame.progress) ||

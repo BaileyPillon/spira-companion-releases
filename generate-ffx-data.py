@@ -1,24 +1,16 @@
-"""Generate the FFX reference tables used by the companion."""
-import argparse
+from pathlib import Path
 import csv
 import json
-from pathlib import Path
 import re
 import sys
-
-parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('references', type=Path, help='directory containing the rng and grid source checkouts')
-parser.add_argument('assets', type=Path, help='output directory for ffx-data.js')
-parser.add_argument('tables', type=Path, help='JSON file containing commands and equipment_name_groups')
-args = parser.parse_args()
-refs = args.references.resolve()
-sys.path[:0] = [str(refs / 'rng'), str(refs / 'grid')]
 
 from ffx_rng_tracker.data.constants import KillType, Rarity
 from ffx_rng_tracker.data.monsters import MONSTERS_HD
 from ffx_sphere_grid_viewer.data.layout import LAYOUT_EXPERT, LAYOUT_STANDARD
 from ffx_sphere_grid_viewer.data.node_types import NODE_TYPES
 
+refs = Path(sys.argv[1])
+assets = Path(sys.argv[2])
 rng = refs / 'rng/ffx_rng_tracker/data/data_files'
 formations = json.loads((rng / 'formations.json').read_text(encoding='utf8'))
 types = {id(node): i for i, node in enumerate(NODE_TYPES)}
@@ -34,7 +26,7 @@ def graph(layout):
 def hex_names(data):
     return {int(key, 16): value for key, value in data.items()}
 
-tables = json.loads(args.tables.read_text(encoding='utf8'))
+tables = json.loads(Path(sys.argv[3]).read_text(encoding='utf8'))
 commands = hex_names(tables['commands'])
 commands.update({0x3058:'Pilfer Gil', 0x3059:'Full Break', 0x305a:'Extract Power', 0x305b:'Extract Mana',
                  0x305c:'Extract Speed', 0x305d:'Extract Ability', 0x305e:'Nab Gil', 0x305f:'Quick Pockets'})
@@ -74,5 +66,4 @@ data = {
                bool(node.learned_move)] for node in NODE_TYPES],
     'standard': graph(LAYOUT_STANDARD), 'expert': graph(LAYOUT_EXPERT),
 }
-args.assets.mkdir(parents=True, exist_ok=True)
-(args.assets/'ffx-data.js').write_text('const ffxData = '+json.dumps(data, ensure_ascii=True,separators=(',',':'))+';\n',encoding='utf8')
+(assets/'ffx-data.js').write_text('const ffxData = '+json.dumps(data, ensure_ascii=True,separators=(',',':'))+';\n',encoding='utf8')

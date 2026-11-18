@@ -234,43 +234,4 @@ for label,identity,status,enabled,battle in [('disabled',('SLPS-25088','658597E2
 def pause_before_write(server,commands):
     if server.requests==7:server.status=1
 check(not run(ap_ram(),'ap','enabled',mutate=pause_before_write)[1],'AP write guard rechecks pause immediately before writing')
-
-def continuity_ram():
-    ram=bytearray(32*1024*1024)
-    put(ram,save,'H',277)
-    put(ram,save+0xbec,'H',1250)
-    put(ram,save+0x3d48,'I',100)
-    put(ram,save+0x3ecc,'H',8192)
-    put(ram,save+0x3ecc+512,'B',2)
-    return ram
-
-check(run(continuity_ram(),'snapshot',0)[0]['status']=='live','stable PS2 context publishes live')
-def change_snapshot_context(server,commands):
-    if commands==bytes([15,12,13]):
-        put(server.ram,save,'H',278)
-check(run(continuity_ram(),'snapshot',0,mutate=change_snapshot_context)[0]['status']=='waiting',
-    'PS2 snapshot discards a room transition under the same disc identity')
-def pause_snapshot(server,commands):
-    if commands==bytes([15,12,13]):server.status=1
-check(run(continuity_ram(),'snapshot',0,mutate=pause_snapshot)[0]['status']=='waiting',
-    'PS2 snapshot discards a pause that occurs during sampling')
-
-check(run(continuity_ram(),'cheat','gil')[1]==[(save+0x3d48,struct.pack('<I',200))],
-    'gil edit writes once after a stable final guard')
-check(run(continuity_ram(),'cheat','item')[1]==[(save+0x3ecc+512,b'\x04')],
-    'item edit checks the owned item slot and writes once')
-def change_before_cheat_guard(change):
-    def mutate(server,commands):
-        if commands==struct.pack('<BI',2,0x662070):change(server)
-    return mutate
-for label,scenario,change in [
-        ('same disc moved or reloaded','gil',lambda server:put(server.ram,save,'H',278)),
-        ('the final item slot now contains another item','item',lambda server:put(server.ram,save+0x3ecc,'H',8193)),
-        ('the final amount changed','gil',lambda server:put(server.ram,save+0x3d48,'I',150)),
-        ('battle has just started','gil',lambda server:put(server.ram,0x316f80,'B',1)),
-        ('emulator paused','gil',lambda server:setattr(server,'status',1))]:
-    check(not run(continuity_ram(),'cheat',scenario,mutate=change_before_cheat_guard(change))[1],
-        'cheat writes refused: '+label)
-check(not run(continuity_ram(),'cheat','cancel')[1],'cheat writes refused after session cancellation')
-check(run(continuity_ram(),'cheat','disabled')[2]==0,'disabled cheat does not connect to PINE')
 print(f'{passed} native reader and write-guard checks passed. Synthetic RAM is not a gameplay acceptance test.')

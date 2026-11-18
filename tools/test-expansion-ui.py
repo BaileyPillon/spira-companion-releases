@@ -1,19 +1,16 @@
-"""Exercise the real companion UI with synthetic frames or a supplied pair of captures."""
+"""Browser regression checks for the ten-feature expansion; local captures stay in build/."""
 import argparse
-import base64
 import json
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 parser=argparse.ArgumentParser()
 parser.add_argument('--screenshots',action='store_true')
-parser.add_argument('--ffx-frame', type=Path, help='FFX International battle frame')
-parser.add_argument('--x2-frame', type=Path, help='FFX-2 USA Chapter 5 frame')
 args=parser.parse_args()
 root=Path(__file__).resolve().parents[1]
-out=root/'build/expansion-ui'
-if args.screenshots:
-    out.mkdir(parents=True, exist_ok=True)
+out=root/'build/expansion-ui';out.mkdir(exist_ok=True)
+ffx=json.loads((root/'build/evrae-opening.json').read_text(encoding='utf8'))
+x2=json.loads((root/'build/ffx2-chapter5.json').read_text(encoding='utf8'))
 
 with sync_playwright() as p:
     browser=p.chromium.launch(channel='chrome',headless=True)
@@ -21,23 +18,6 @@ with sync_playwright() as p:
     page=browser.new_page(viewport={'width':620,'height':700},device_scale_factor=1)
     page.on('pageerror',lambda e:errors.append(str(e)))
     page.goto((root/'app/assets/index.html').as_uri())
-    actor = dict(id=0, active=True, hp=1500, maxHp=1500, mp=50, maxMp=50)
-    common = dict(schema=1, status='live', gil=1000, battles=25, items=[[8193, 2]])
-    ffx = dict(common, game='x', disc='SLPS-25088', crc='658597E2', room=255, story=2000, battle=True,
-               grid=page.evaluate("ffxData.standard.nodes.map(n=>n[2].toString(16).padStart(2,'0')+'00').join('')"),
-               gridPositions=[0]*7, gridLinks='00'*881, arena='00'*640,
-               progress=dict(trials=0, keyItems='00'*16),
-               party=[dict(actor, attributes=[25]*8, battleAttributes=[25]*8, sphereLevel=5,
-                           commands=[12304], gear=[], boosts=[0]*8)],
-               enemies=[dict(id=foe, slot=i, hp=1000, maxHp=1000, battleAttributes=[15]*8)
-                        for i, foe in enumerate([119,149,255])])
-    x2 = dict(common, game='x2', disc='SLUS-20672', crc='48FE0C71', chapter=5, room=110,
-              battle=False, party=[dict(actor, job=20480)], crimsonSpheres=0,
-              storyFlags=base64.b64encode(bytes(0x2868)).decode('ascii'))
-    if args.ffx_frame:
-        ffx = json.loads(args.ffx_frame.read_text(encoding='utf8'))
-    if args.x2_frame:
-        x2 = json.loads(args.x2_frame.read_text(encoding='utf8'))
     def feed(value):page.evaluate('(f)=>Spira.update({...f,timestamp:Date.now()},false)',value)
     def choose(name):page.evaluate('(t)=>choose(t)',name)
     feed(ffx)
@@ -78,22 +58,6 @@ with sync_playwright() as p:
     choose('profiles');page.get_by_label('Playthrough profile',exact=True).select_option(label='My playthrough')
     page.get_by_role('button',name='Switch profile').click();page.wait_for_load_state()
     feed(ffx);choose('workspace');assert page.get_by_label('Playthrough notes').input_value()=='Keep this route'
-    note = page.get_by_label('Playthrough notes')
-    note.focus()
-    note.evaluate('(el)=>el.setSelectionRange(2, 5)')
-    feed({**ffx, 'items': [[8193, 4]]})
-    assert note.evaluate('(el)=>el===document.activeElement && el.selectionStart===2 && el.selectionEnd===5')
-    # Existing installations saved tool pins without a game field.
-    page.evaluate("""() => {
-      workspacePins = [{key:'tool:trials',kind:'Tool',name:'Cloister guide',tab:'trials'}];
-      choose('trials');
-    }""")
-    feed(x2)
-    assert page.evaluate('tab') == 'status'
-    choose('workspace')
-    assert page.get_by_role('button', name='Open Cloister guide').is_disabled()
-    feed(ffx)
-    assert page.get_by_role('button', name='Open Cloister guide').first.is_enabled()
     feed(x2);choose('workspace');page.get_by_role('searchbox',name='Search companion').fill('Hi-Potion')
     page.get_by_role('button',name='Open Hi-Potion',exact=True).click()
     assert page.get_by_role('searchbox',name='Find a recovery item').input_value()=='Hi-Potion'
@@ -106,14 +70,6 @@ with sync_playwright() as p:
     assert scene.get_by_text('Alternate Farplane farewell',exact=True).count()==1
     scene.get_by_role('checkbox',name='Include conditional routes').uncheck()
     assert scene.get_by_text('No scenes match this filter',exact=True).count()==1
-    scene.get_by_role('searchbox',name='Find an interaction or location').fill('')
-    detail = scene.locator('details').first
-    detail.locator('summary').click()
-    open_text = detail.inner_text()
-    feed({**x2, 'crimsonSpheres': x2.get('crimsonSpheres', 0) ^ 1})
-    assert not scene.get_by_role('checkbox',name='Include conditional routes').is_checked()
-    assert scene.locator('details[open]').count() == 1
-    assert scene.locator('details[open]').inner_text() == open_text
     cloak={**ffx,'battle':False,'enemies':[],'progress':{**ffx['progress'],'trials':0}}
     def trial(name,room,held,sockets,puzzle=None,phases=None):
         state={'temple':name,'held':held,'sockets':[{'id':k,'value':v} for k,v in sockets.items()]}

@@ -270,8 +270,8 @@ final class Ps2Feed {
                 readX2Loadout(socket, stats, x2Unlocks, x2Accessories, x2GridSlots, sequelBattle != null) : null;
 
             // A reset or disc switch during a read can otherwise pair data with the previous game's profile.
-            ByteBuffer confirmed = request(socket, new byte[] {STATUS, ID, CRC});
-            if (confirmed.getInt() != vm || !serial.equals(string(confirmed)) || !crc.equals(string(confirmed))) return frame("waiting");
+            ByteBuffer confirmed = request(socket, new byte[] {ID, CRC});
+            if (!serial.equals(string(confirmed)) || !crc.equals(string(confirmed))) return frame("waiting");
 
             JSONObject out = frame(playing ? "live" : "title").put("game", p.game)
                 .put("edition", p.edition).put("disc", serial).put("crc", crc).put("paused", vm == 1);
@@ -355,31 +355,14 @@ final class Ps2Feed {
                     items.put(new JSONArray().put(id).put(quantity));
                 }
             }
-            ByteBuffer context = little(18);
-            context.put(STATUS).put(ID).put(CRC);
-            readLocation(context, p);
-            ByteBuffer finalState = request(socket, context.array());
-            if (finalState.getInt() != vm || !serial.equals(string(finalState)) || !crc.equals(string(finalState)) ||
-                    !sameLocation(finalState, room, story, p.sequel ? chapter : -1)) return frame("waiting");
+            ByteBuffer finalIdentity = request(socket, new byte[] {ID, CRC});
+            if (!serial.equals(string(finalIdentity)) || !crc.equals(string(finalIdentity))) return frame("waiting");
             return out.put("items", items);
         }
     }
 
     private static boolean isPlaying(Profile p, int room, int story) {
         return room > 0 && (p.sequel || room != 23 || story != 0);
-    }
-
-    private static void readLocation(ByteBuffer commands, Profile p) {
-        readRange(commands, p.save, 2);
-        readRange(commands, p.save + 0xbec, 2);
-        readRange(commands, p.save + 0x114c, 1);
-    }
-
-    private static boolean sameLocation(ByteBuffer state, int room, int story, int chapter) {
-        if (state.remaining() < 5 || Short.toUnsignedInt(state.getShort()) != room ||
-                Short.toUnsignedInt(state.getShort()) != story) return false;
-        int liveChapter = Byte.toUnsignedInt(state.get());
-        return chapter < 0 || liveChapter == chapter;
     }
 
     static boolean supportsCheats(String serial) {
@@ -393,7 +376,6 @@ final class Ps2Feed {
     // One field per request. Preflight and readback use the same PINE connection.
     static String applyCheat(String disc, int room, int story, int item, int expected, int target,
             java.util.function.BooleanSupplier enabled) throws IOException, JSONException {
-        if (!enabled.getAsBoolean()) return "The cheat is no longer active in this session.";
         boolean gil = item == 0;
         if (!supportsCheats(disc) || (!gil && !cheatItem(item)) ||
                 expected < (gil ? 0 : 1) || target < (gil ? 0 : 1) || target > (gil ? GIL_LIMIT : 99)) {
@@ -407,7 +389,9 @@ final class Ps2Feed {
             if (p == null || !disc.equals(serial)) return "The running game changed. Review the cheat again.";
 
             ByteBuffer position = little(15);
-            readLocation(position, p);
+            readRange(position, p.save, 2);
+            readRange(position, p.save + 0xbec, 2);
+            readRange(position, p.save + 0x114c, 1);
             ByteBuffer where = request(socket, position.array());
             if (where.remaining() != 5 || !isPlaying(p, room, story) ||
                     Short.toUnsignedInt(where.getShort()) != room || Short.toUnsignedInt(where.getShort()) != story) {
@@ -415,6 +399,9 @@ final class Ps2Feed {
             }
             int chapter = Byte.toUnsignedInt(where.get());
             if (p.sequel && (chapter < 1 || chapter > 5)) return "Load a game before applying a cheat.";
+            boolean battle = p.sequel ? readX2Battle(socket, false) != null : readXBattle(socket) != null;
+            if (battle) return "Finish the battle before applying a cheat.";
+
             int writeAddress = p.gilAddress();
             int slot = -1;
             if (!gil) {
@@ -432,35 +419,20 @@ final class Ps2Feed {
                 if (slot == -1) return "This item is no longer in your inventory.";
                 writeAddress = p.save + p.itemsOffset + 512 + slot;
             }
-            int battleRoot = p.sequel ? readBytes(socket, 0x51b860, 4).getInt() : 0;
-            boolean battle = p.sequel ? readX2Battle(socket, false) != null : readXBattle(socket) != null;
-            if (battle) return "Finish the battle before applying a cheat.";
+            ByteBuffer valueRead = little(5);
+            readRange(valueRead, writeAddress, gil ? 4 : 1);
+            ByteBuffer current = request(socket, valueRead.array());
+            if (current.remaining() != (gil ? 4 : 1)) throw new IOException("Incomplete cheat preflight");
+            if ((gil ? Integer.toUnsignedLong(current.getInt()) : Byte.toUnsignedInt(current.get())) != expected) {
+                return "The amount changed. Review the cheat again.";
+            }
 
-            ByteBuffer guard = little(gil ? 28 : 33);
-            guard.put(STATUS).put(ID).put(CRC);
-            readLocation(guard, p);
-            readRange(guard, p.sequel ? 0x51b860 : 0x316f80, p.sequel ? 4 : 1);
-            if (!gil) readRange(guard, p.save + p.itemsOffset + 2 * slot, 2);
-            readRange(guard, writeAddress, gil ? 4 : 1);
-            ByteBuffer confirmed = request(socket, guard.array());
+            ByteBuffer confirmed = request(socket, new byte[] {STATUS, ID, CRC});
             if (confirmed.remaining() < 4 || confirmed.getInt() != 0 ||
                     !serial.equals(string(confirmed)) || !crc.equals(string(confirmed))) {
                 return "Resume the same game before applying a cheat.";
             }
-            if (!sameLocation(confirmed, room, story, p.sequel ? chapter : -1)) {
-                return "The game moved or reloaded. Review the cheat again.";
-            }
-            if (p.sequel ? confirmed.getInt() != battleRoot : confirmed.get() != 0) {
-                return "Finish the battle before applying a cheat.";
-            }
-            if (!gil && Short.toUnsignedInt(confirmed.getShort()) != item) return "Item stock changed. Review the cheat again.";
-            if ((gil ? Integer.toUnsignedLong(confirmed.getInt()) : Byte.toUnsignedInt(confirmed.get())) != expected) {
-                return "The amount changed. Review the cheat again.";
-            }
-            if (!enabled.getAsBoolean()) return "The cheat is no longer active in this session.";
-
-            ByteBuffer valueRead = little(5);
-            readRange(valueRead, writeAddress, gil ? 4 : 1);
+            if (!enabled.getAsBoolean()) return "Cheat Menu is disabled.";
             ByteBuffer commands = little(gil ? 14 : 11);
             commands.put(gil ? WRITE_32 : WRITE_8).putInt(writeAddress);
             if (gil) commands.putInt(target);

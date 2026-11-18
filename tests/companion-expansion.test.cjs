@@ -7,7 +7,7 @@ const {createContext,runInContext}=require("node:vm");
 function fixture(extra={}) {
   const storage=new Map();
   const localStorage={getItem:k=>storage.get(k)??null,setItem:(k,v)=>storage.set(k,String(v)),removeItem:k=>storage.delete(k),key:i=>[...storage.keys()][i],get length(){return storage.size;}};
-  const context=createContext({atob,btoa,Blob,window:{},localStorage,number:new Intl.NumberFormat("en-US"),
+  const context=createContext({atob,btoa,window:{},localStorage,number:new Intl.NumberFormat("en-US"),
     itemAmounts:items=>new Map(items),roomName:({room})=>String(room),guideRooms:new Map(),...extra});
   for(const file of ["catalog.js","ffx-data.js","ffx.js","ffx-progress.js","ffx-arena.js","ffx-hunt.js",
     "ffx-customization-data.js","ffx-customization.js","ffx-collections.js","ffx-prep.js","ffx-endgame.js",
@@ -26,14 +26,6 @@ test("profile round trips keep separate notes and exclude cheat settings",()=>{
     return [empty,original,SpiraProfiles.capture(),JSON.parse(backup).data];})()`),[{},...Array(3).fill({"spira.workspace.note.v1":'"Original notes"'})]);
   assert.equal(storage.get("spira.cheats.enabled"),"true");
 });
-test("profile files enforce the same UTF-8 byte limit on export and import", () => {
-  const {exec, storage} = fixture();
-  storage.set("spira.workspace.note.v1", "界".repeat(1_500_000));
-  assert.throws(() => exec("SpiraProfiles.backup()"), /too large|backup limit/);
-  assert.throws(() => exec('SpiraProfiles.importBackup("界".repeat(1_500_000))'), /4 MB/);
-  assert.equal(storage.size, 1);
-});
-
 test("profile imports reject foreign data without changing active preferences",()=>{
   const {exec,storage}=fixture();storage.set("spira.workspace.note.v1",'"Keep this"');
   for(const data of [{token:"secret"},{"spira.cheats.token":"secret"},{"spira.workspace.note.v1":{x:1}},[]]) {

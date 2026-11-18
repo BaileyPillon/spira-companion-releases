@@ -24,7 +24,6 @@ const x2NamedScenes = new Map([
   ["6664:4",["See the level-5 Experiment scene","Visit the Experiment when Attack, Defense and Special have all reached level 5."]]
 ]);
 let sceneAuditChapter=0,sceneAuditQuery="",sceneAuditMissing=true;
-let sceneAuditIncludeConditional = true;
 function x2SceneAudit(current) {
   if(current?.disc!=="SLUS-20672"||!x2StoryProgress(current.storyFlags))return null;
   const bytes=atob(current.storyFlags);
@@ -59,15 +58,8 @@ function showX2SceneAudit(current) {
   search.addEventListener("input",()=>{sceneAuditQuery=search.value;draw();});
   const label=element("label","goal-choice"),missing=element("input");missing.type="checkbox";missing.checked=sceneAuditMissing;
   missing.addEventListener("change",()=>{sceneAuditMissing=missing.checked;draw();});label.append(missing,document.createTextNode("Unrecorded only"));
-  const branchLabel = element("label", "goal-choice");
-  const branchCheck = element("input");
-  branchCheck.type = "checkbox";
-  branchCheck.checked = sceneAuditIncludeConditional;
-  branchCheck.addEventListener("change", () => {
-    sceneAuditIncludeConditional = branchCheck.checked;
-    draw();
-  });
-  branchLabel.append(branchCheck, document.createTextNode("Include conditional routes"));
+  const branchLabel=element("label","goal-choice"),branchCheck=element("input");branchCheck.type="checkbox";branchCheck.checked=true;
+  branchCheck.addEventListener("change",draw);branchLabel.append(branchCheck,document.createTextNode("Include conditional routes"));
   controls.append(chapter,search,label,branchLabel);const summary=element("p","field-note"),sheet=element("div","sheet");
   function draw(){
     const chosen=sceneAuditChapter||current.chapter,all=scenes.filter(row=>row.chapter===chosen),pending=all.filter(row=>!row.done);
@@ -80,7 +72,6 @@ function showX2SceneAudit(current) {
       row.append(element("p","field-note",scene.visit?`Where to start: ${scene.visit}`:scene.location));
       const reference=element("details");reference.append(element("summary","",`Save details · ${scene.flags.filter(flag=>flag.done).length}/${scene.flags.length} flags recorded`));
       for(const flag of scene.flags)reference.append(element("p","field-note",`${flag.done?"Recorded":"Unrecorded"} · ${flag.location} · ${flag.key}`));
-      reference.dataset.detailKey = "scene:" + scene.chapter + ":" + scene.routeId;
       reference.append(element("p","field-note",scene.flags.find(flag=>!flag.done)?.recovery||scene.recovery));row.append(reference);sheet.append(row);
     }
     if(!sheet.childElementCount)sheet.append(entry("No scenes match this filter"));

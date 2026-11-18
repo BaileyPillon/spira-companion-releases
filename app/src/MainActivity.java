@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.provider.DocumentsContract;
 import android.view.View;
 import android.view.WindowInsets;
@@ -39,19 +38,16 @@ public final class MainActivity extends Activity {
     private static final String GUIDE_HASH = "5cf7b64256cc5e53453e1358a16acc7f51b72679e48856569724e4f72a853784";
     private static final int GUIDE_SIZE = 40660758;
     private static final int MAX_FRAME_BYTES = 64 * 1024;
-    private static final long PS2_HANDOFF_GRACE_MS = 3000;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final ExecutorService reader = Executors.newSingleThreadExecutor();
     private WebView view;
     private Uri liveFile;
     private File guideFile;
     private volatile boolean resumed;
-    private volatile long sessionGeneration;
-    private long lastPs2ActiveAt = -1;
     private boolean reading, ready;
     private final String cheatToken = java.util.UUID.randomUUID().toString();
     private volatile boolean cheatMenu;
-    private long pendingCheatGeneration = -1;
+    private boolean cheatPending;
     private volatile boolean sharePartyAp;
     private String pendingExport, pendingImportKind;
 
@@ -90,11 +86,7 @@ public final class MainActivity extends Activity {
             }
 
             @Override public void onPageStarted(WebView source, String url, android.graphics.Bitmap favicon) {
-                if ("file:///android_asset/index.html".equals(url)) {
-                    sessionGeneration++;
-                    sharePartyAp = false;
-                    ready = false;
-                }
+                if ("file:///android_asset/index.html".equals(url)) { sharePartyAp = false; ready = false; }
             }
 
             @Override public void onPageFinished(WebView source, String url) {
@@ -123,17 +115,12 @@ public final class MainActivity extends Activity {
     }
 
     @Override protected void onPause() {
-        if (pendingCheatGeneration == sessionGeneration) {
-            cheatResult(false, "The companion session changed. Check the live amount before trying again.");
-        }
         resumed = false;
-        sessionGeneration++;
         handler.removeCallbacks(poll);
         super.onPause();
     }
 
     @Override protected void onDestroy() {
-        sessionGeneration++;
         ready = false;
         reader.shutdownNow();
         view.destroy();
@@ -200,26 +187,23 @@ public final class MainActivity extends Activity {
         @JavascriptInterface public void applyCheat(String token, String disc, int room, int story,
                 int item, int expected, int target) {
             if (!cheatToken.equals(token)) return;
-            long generation = sessionGeneration;
             runOnUiThread(() -> {
-                if (!ready || !activeSession(generation) || pendingCheatGeneration == generation) return;
+                if (!ready || !resumed || cheatPending) return;
                 if (!cheatMenu) {
                     cheatResult(false, "Cheat Menu is disabled.");
                     return;
                 }
-                pendingCheatGeneration = generation;
+                cheatPending = true;
                 reader.execute(() -> {
                     String message;
                     try {
-                        message = Ps2Feed.applyCheat(disc, room, story, item, expected, target,
-                            () -> cheatMenu && activeSession(generation));
+                        message = Ps2Feed.applyCheat(disc, room, story, item, expected, target, () -> cheatMenu);
                     } catch (Exception e) {
                         message = "ARMSX2 did not confirm the change. Check the live amount before trying again.";
                     }
                     String result = message;
                     handler.post(() -> {
-                        if (pendingCheatGeneration == generation) pendingCheatGeneration = -1;
-                        if (!activeSession(generation)) return;
+                        cheatPending = false;
                         cheatResult(result.isEmpty(), result);
                         refresh();
                     });
@@ -365,22 +349,17 @@ public final class MainActivity extends Activity {
 
     private final Runnable poll = this::refresh;
 
-    private boolean activeSession(long generation) {
-        return resumed && generation == sessionGeneration;
-    }
-
     private void refresh() {
         handler.removeCallbacks(poll);
         if (!resumed || !ready || reading) return;
         Uri file = liveFile;
-        long generation = sessionGeneration;
         reading = true;
         reader.execute(() -> {
-            String content = activeSession(generation) ? readSnapshot(file, generation) : null;
+            String content = readSnapshot(file);
             handler.post(() -> {
                 reading = false;
                 if (!ready || !resumed) return;
-                if (!activeSession(generation) || !java.util.Objects.equals(file, liveFile)) {
+                if (!java.util.Objects.equals(file, liveFile)) {
                     refresh();
                     return;
                 }
@@ -391,25 +370,18 @@ public final class MainActivity extends Activity {
         });
     }
 
-    private String readSnapshot(Uri file, long generation) {
-        JSONObject ps2 = null;
+    private String readSnapshot(Uri file) {
         try {
-            ps2 = Ps2Feed.snapshot();
+            JSONObject ps2 = Ps2Feed.snapshot();
+            if (sharePartyAp && cheatMenu && resumed) {
+                try { Ps2Feed.sharePartyAp(ps2, () -> sharePartyAp && cheatMenu && resumed); }
+                catch (Exception ignored) { /* Never interrupt the read-only feed for an optional boost. */ }
+            }
+            if (file == null || !"waiting".equals(ps2.optString("status"))) return ps2.toString();
         } catch (Exception e) {
             // A stopped emulator has no listener. Try the optional Steam feed next.
         }
-        if (!activeSession(generation)) return null;
-        if (ps2 != null && !"waiting".equals(ps2.optString("status"))) {
-            lastPs2ActiveAt = SystemClock.elapsedRealtime();
-            if (sharePartyAp && cheatMenu) {
-                try { Ps2Feed.sharePartyAp(ps2, () -> sharePartyAp && cheatMenu && activeSession(generation)); }
-                catch (Exception ignored) { /* Never interrupt the read-only feed for an optional boost. */ }
-            }
-            return ps2.toString();
-        }
-        if (file == null || lastPs2ActiveAt >= 0 && SystemClock.elapsedRealtime() - lastPs2ActiveAt < PS2_HANDOFF_GRACE_MS) {
-            return ps2 == null ? null : ps2.toString();
-        }
+        if (file == null) return null;
         try (InputStream input = getContentResolver().openInputStream(file)) {
             if (input == null) return null;
             ByteArrayOutputStream data = new ByteArrayOutputStream();

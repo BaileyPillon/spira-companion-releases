@@ -4,9 +4,6 @@
 const SpiraProfiles = (() => {
   const registryKey = "spira.profiles.v1";
   const maxBytes = 4 * 1024 * 1024;
-  function fitsBackup(text) {
-    return text.length <= maxBytes && new Blob([text]).size <= maxBytes;
-  }
   const allowed = key => typeof key === "string" && key.startsWith("spira.") && key !== registryKey &&
     !/token|credential|cheat/i.test(key) && key.length < 160;
   function registry() {
@@ -26,7 +23,7 @@ const SpiraProfiles = (() => {
   }
   function validateData(data) {
     if (!data || typeof data !== "object" || Array.isArray(data)) throw Error("The backup has no companion data.");
-    if (Object.keys(data).length > 250 || !fitsBackup(JSON.stringify(data))) throw Error("This backup is too large.");
+    if (Object.keys(data).length > 250 || JSON.stringify(data).length > maxBytes) throw Error("This backup is too large.");
     for (const [key,value] of Object.entries(data)) {
       if (!allowed(key) || typeof value !== "string") throw Error("This file contains unsupported backup entries.");
     }
@@ -37,15 +34,13 @@ const SpiraProfiles = (() => {
     for (const [key,value] of Object.entries(data)) localStorage.setItem(key,value);
   }
   function transact(next, data) {
-    if (data) validateData(data);
-    const oldData = data ? capture() : null;
+    const oldData = capture(), oldRegistry = localStorage.getItem(registryKey);
     try {
-      if (data) put(data);
+      if (data) put(validateData(data));
       localStorage.setItem(registryKey,JSON.stringify(next));
     } catch (error) {
-      // setItem leaves the old registry intact on failure. Only the individual
-      // preference keys may already have been replaced during a switch.
-      if (oldData) put(oldData);
+      put(oldData);
+      if (oldRegistry == null) localStorage.removeItem(registryKey); else localStorage.setItem(registryKey,oldRegistry);
       throw Error("There is not enough storage to save this profile. Export a backup before removing an old profile.");
     }
   }
@@ -66,7 +61,7 @@ const SpiraProfiles = (() => {
     const next = registry(), selected = next.profiles.find(p => p.id === id);
     if (!selected) throw Error("That profile is no longer available.");
     if (id === next.active) return;
-    next.profiles.find(p => p.id === next.active).data = validateData(capture());
+    next.profiles.find(p => p.id === next.active).data = capture();
     const data = selected.data;
     selected.data = {};
     next.active = id;
@@ -84,17 +79,14 @@ const SpiraProfiles = (() => {
   }
   function backup() {
     const current = registry();
-    const text = JSON.stringify({format:"spira-companion-profile",version:1,
-      name:current.profiles.find(p => p.id === current.active).name,exported:new Date().toISOString(),data:validateData(capture())});
-    if (!fitsBackup(text)) throw Error("The profile exceeds the 4 MB backup limit.");
-    return text;
+    return JSON.stringify({format:"spira-companion-profile",version:1,
+      name:current.profiles.find(p => p.id === current.active).name,exported:new Date().toISOString(),data:capture()},null,2);
   }
   function importBackup(text) {
-    if (typeof text !== "string" || !fitsBackup(text)) throw Error("Choose a Spira profile backup up to 4 MB.");
+    if (typeof text !== "string" || text.length > maxBytes) throw Error("Choose a Spira profile backup smaller than 4 MB.");
     let value; try { value = JSON.parse(text); } catch { throw Error("The backup is not valid JSON."); }
     if (value?.format !== "spira-companion-profile" || value.version !== 1) throw Error("Choose a version 1 Spira companion profile backup.");
-    if (!Object.hasOwn(value, "data")) throw Error("The backup has no companion data.");
-    return create(value.name,value.data);
+    return create(value.name,validateData(value.data));
   }
   return {registry,capture,create,activate,rename,remove,backup,importBackup};
 })();

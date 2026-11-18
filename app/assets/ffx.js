@@ -41,9 +41,6 @@ function rememberExit(previous, next) {
     lastFieldPosition = null;
     return;
   }
-  if (!previous || previous.disc !== next.disc || next.battles < previous.battles || next.story < previous.story) {
-    lastFieldPosition = null;
-  }
   const last = lastFieldPosition;
   if (last && last.disc === next.disc && previous?.disc === next.disc && previous.status === "live" &&
       last.room === next.previousRoom && last.room !== next.room &&

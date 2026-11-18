@@ -160,13 +160,6 @@ std::string sample(HANDLE process, uintptr_t base, const Profile& p) {
         out << '[' << ids[i] << ',' << unsigned(counts[i]) << ']';
     }
     out << ']';
-    uint16_t checkedRoom = 0, checkedStory = 0;
-    uint8_t checkedChapter = 0;
-    if (!read(process, save, checkedRoom) || checkedRoom != room ||
-        !read(process, save + 0xbec, checkedStory) || checkedStory != story ||
-        (p.sequel && (!read(process, save + 0x114c, checkedChapter) || checkedChapter != chapter))) {
-        return R"("status":"reading")";
-    }
     return out.str();
 }
 
@@ -231,13 +224,13 @@ bool launch(const fs::path& directory, const wchar_t* exe) {
 int wmain(int argc, wchar_t** argv) {
     bool watch = false, once = false;
     fs::path output = outputPath();
-    const Profile* selected = nullptr;
+    const wchar_t* game = L"FFX&X-2_LAUNCHER.exe";
     for (int i = 1; i < argc; ++i) {
         const std::wstring arg = argv[i];
         if (arg == L"--watch") watch = true;
         else if (arg == L"--once") once = true;
-        else if (arg == L"--x") selected = &profiles[0];
-        else if (arg == L"--x2") selected = &profiles[1];
+        else if (arg == L"--x") game = profiles[0].exe;
+        else if (arg == L"--x2") game = profiles[1].exe;
         else if (arg == L"--out" && i + 1 < argc) output = argv[++i];
         else return 2;
     }
@@ -248,7 +241,7 @@ int wmain(int argc, wchar_t** argv) {
     wchar_t self[MAX_PATH];
     const auto length = GetModuleFileNameW(nullptr, self, ARRAYSIZE(self));
     if (!length || length >= ARRAYSIZE(self)) return 3;
-    if (!watch && !once && !launch(fs::path(self).parent_path(), selected ? selected->exe : L"FFX&X-2_LAUNCHER.exe")) return 4;
+    if (!watch && !once && !launch(fs::path(self).parent_path(), game)) return 4;
 
     DWORD previousPid = 0;
     uintptr_t base = 0;
@@ -257,7 +250,6 @@ int wmain(int argc, wchar_t** argv) {
         const Profile* profile = nullptr;
         DWORD pid = 0;
         for (const auto& candidate : profiles) {
-            if (selected && selected != &candidate) continue;
             pid = processId(candidate.exe);
             if (pid) {
                 profile = &candidate;

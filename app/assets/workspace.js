@@ -6,34 +6,18 @@ function readCompanionSetting(key, fallback) {
 function saveCompanionSetting(key,value) {
   try { localStorage.setItem(key,JSON.stringify(value));return true; } catch { return false; }
 }
-function detailKey(details) {
-  return details.dataset.detailKey || details.querySelector("summary")?.textContent;
+function rememberExpansionUi(){
+  if(panel.dataset.page!==tab||!["workspace","planner","grid-lab","battle-lab","trials","blitzball","chapter-checklist"].includes(tab))return null;
+  const focused=panel.contains(document.activeElement)?document.activeElement:null;
+  return {scroll:panel.scrollTop,focus:focused?.getAttribute("aria-label"),start:focused?.selectionStart,end:focused?.selectionEnd,
+    open:new Map([...panel.querySelectorAll("details")].map(d=>[d.querySelector("summary")?.textContent,d.open]))};
 }
-function rememberExpansionUi() {
-  if (panel.dataset.page !== tab || !["workspace","planner","grid-lab","battle-lab","trials","blitzball","chapter-checklist"].includes(tab)) return null;
-  const focused = panel.contains(document.activeElement) ? document.activeElement : null;
-  return {
-    scroll: panel.scrollTop,
-    focus: focused?.getAttribute("aria-label"),
-    start: focused?.selectionStart,
-    end: focused?.selectionEnd,
-    open: new Map(Array.from(panel.querySelectorAll("details"), details => [detailKey(details), details.open]))
-  };
-}
-function restoreExpansionUi(saved) {
-  panel.dataset.page = tab;
-  if (!saved) return;
-  for (const details of panel.querySelectorAll("details")) {
-    const key = detailKey(details);
-    if (saved.open.has(key)) details.open = saved.open.get(key);
-  }
-  const focused = saved.focus && Array.from(panel.querySelectorAll("[aria-label]"))
-    .find(node => node.getAttribute("aria-label") === saved.focus);
-  if (focused) {
-    focused.focus({preventScroll:true});
-    if (saved.start != null && focused.selectionStart != null) focused.setSelectionRange(saved.start, saved.end);
-  }
-  panel.scrollTop = saved.scroll;
+function restoreExpansionUi(saved){
+  panel.dataset.page=tab;if(!saved)return;
+  for(const d of panel.querySelectorAll("details")){const key=d.querySelector("summary")?.textContent;if(saved.open.has(key))d.open=saved.open.get(key);}
+  const focus=saved.focus&&[...panel.querySelectorAll("[aria-label]")].find(n=>n.getAttribute("aria-label")===saved.focus);
+  if(focus){focus.focus({preventScroll:true});if(saved.start!=null&&focus.setSelectionRange)try{focus.setSelectionRange(saved.start,saved.end);}catch{}}
+  panel.scrollTop=saved.scroll;
 }
 let workspaceQuery = "";
 let workspacePins = readCompanionSetting("spira.workspace.v1",[]);
@@ -41,25 +25,21 @@ if (!Array.isArray(workspacePins)) workspacePins = [];
 workspacePins=workspacePins.filter(p=>p&&typeof p.key==="string"&&typeof p.name==="string"&&typeof p.kind==="string").slice(0,40);
 let workspaceNote = readCompanionSetting("spira.workspace.note.v1","");
 const workspaceTools = [
-  ["planner","Goal planner","Plan several goals from your save","x"],
-  ["grid-lab","Grid sandbox","Build and compare hypothetical Sphere Grid routes","x"],
-  ["battle-lab","Battle comparison","Compare supported actions against your target","x"],
+  ["planner","Goal planner","Plan several goals from your save"],
+  ["grid-lab","Grid sandbox","Build and compare hypothetical Sphere Grid routes"],
+  ["battle-lab","Battle comparison","Compare supported actions against your target"],
   ["status","Status","Live party, battle and story guidance"],
   ["guide","Guide","Offline Jegged walkthrough"],
-  ["prep","Boss Prep","Armor, materials and AP farming","x"],
-  ["blitzball","Blitzball","Team builder, rewards and techniques","x"],
+  ["prep","Boss Prep","Armor, materials and AP farming"],
+  ["blitzball","Blitzball","Team builder, rewards and techniques"],
   ["challenges","Challenges","Minigame records and live route guidance"],
-  ["trials","Cloister guide","Temple routes and destruction sphere treasures","x"],
-  ["chapter-checklist","Chapter Checklist","FFX-2 chapter checks and missing scenes","x2"],
+  ["trials","Cloister guide","Temple routes and destruction sphere treasures"],
+  ["chapter-checklist","Chapter Checklist","FFX-2 chapter checks and missing scenes"],
   ["profiles","Profiles","Separate playthroughs and portable backups"]
-].map(([tab,name,detail,game]) => ({key:"tool:"+tab, kind:"Tool", tab, name, detail, game}));
-function toolSupportsGame(tab, game) {
-  const required = workspaceTools.find(tool => tool.tab === tab)?.game;
-  return !required || required === game;
-}
+];
 function workspaceIndex(current) {
   const game = current?.game || "x";
-  const rows = workspaceTools.filter(tool => !tool.game || tool.game === game);
+  const rows = workspaceTools.filter(([key])=>game==="x"?key!=="chapter-checklist":!["planner","grid-lab","battle-lab","prep","blitzball","trials"].includes(key)).map(([key,name,detail]) => ({key:"tool:"+key,kind:"Tool",name,detail,tab:key}));
   const data = game === "x" ? ffxData : {items:Object.fromEntries(catalog.x2.recovery.map((name,i)=>[8192+i,name]))};
   for (const [id,value] of Object.entries(data.items || {})) {
     const name = typeof value === "string" ? value : value.name || value[0];
@@ -123,11 +103,11 @@ function showWorkspace(current) {
   search.setAttribute("aria-label","Search companion");search.value=workspaceQuery;
   const results=element("div","sheet"),pins=element("div","sheet"),status=element("p","field-note");status.setAttribute("role","status");
   const index=workspaceIndex(current);
-  function row(item, available = true) {
+  function row(item) {
     const owned=item.kind==="Item" && current?.items ? itemAmounts(current.items).get(item.id) || 0 : null;
     const node=entry(item.name,item.kind+(owned==null?"":` · ${owned} owned`),item.detail);
     const open=action("Open "+item.name,()=>openWorkspaceEntry(item));
-    open.disabled = !available;
+    open.disabled=!!item.game && !!current?.game && item.game!==current.game;
     if(item.kind!=="Location"||item.anchor) node.append(open);
     if(item.collection&&!item.owned){open.disabled=true;node.append(element("p","field-note","Reference entry · not in your collection"));}
     const pinned=workspacePins.some(pin=>pin.key===item.key);
@@ -142,22 +122,13 @@ function showWorkspace(current) {
     status.textContent=workspaceQuery?`${matches.length} results${matches.length>60?" · refine your search to see more":""}`:"";
     for(const item of matches.slice(0,60)) results.append(row(item));
     if(!matches.length) results.append(entry("No matches","","Try an item name, an effect, or a tool such as Grid."));
-    for (const pin of workspacePins) {
-      const live = index.find(item => item.key === pin.key);
-      pins.append(row(live || pin, !!live));
-    }
+    for(const item of workspacePins) pins.append(row(index.find(live=>live.key===item.key)||item));
     if(!workspacePins.length) pins.append(entry("Keep useful tools here","","Pin results below to build your own workspace."));
   }
   search.addEventListener("input",()=>{workspaceQuery=search.value;draw();});
   const noteLabel=element("label","plan-field","Playthrough notes");
   const note=element("textarea");note.rows=3;note.maxLength=10000;note.value=typeof workspaceNote==="string"?workspaceNote:"";
-  note.setAttribute("aria-label", "Playthrough notes");
-  note.addEventListener("input", () => {
-    workspaceNote = note.value;
-    if (!saveCompanionSetting("spira.workspace.note.v1", workspaceNote)) {
-      status.textContent = "Notes could not be saved. Copy this text before leaving the page.";
-    }
-  });
+  note.addEventListener("input",()=>{workspaceNote=note.value;if(!saveCompanionSetting("spira.workspace.note.v1",workspaceNote))status.textContent="Notes could not be saved. Export your profile and check storage.";});
   noteLabel.append(note);
   panel.append(element("h2","","Pinned"),pins,noteLabel,element("h2","","Search everything"),search,status,results);draw();
 }

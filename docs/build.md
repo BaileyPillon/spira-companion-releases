@@ -3,7 +3,7 @@
 The Android app uses a Java activity, a PINE reader and an HTML/JavaScript interface in a WebView. The repository includes the generated game tables, so you can build the APK and run the regression tests from a fresh clone.
 
 ```powershell
-git clone https://github.com/BaileyPillon/spira-companion-releases.git
+git clone --branch v1.38.1-source https://github.com/BaileyPillon/spira-companion-releases.git
 cd spira-companion-releases
 ```
 
@@ -29,6 +29,6 @@ To sign with your own PKCS12 keystore, supply `-Keystore` and `-KeyAlias` and se
 
 - **Game logic.** With Node.js 22 or newer, run `node --test tests/*.test.cjs`.
 - **Emulator reads and guarded writes.** On Windows, use the JDK and SDK paths above plus a local [org.json JAR](https://central.sonatype.com/artifact/org.json/json/20240303). Run `python tools/test-live-readers.py --jdk "$jdk" --android "$sdk\platforms\android-35\android.jar" --json "<path-to-json.jar>"`. The harness runs a simulated PINE server on local port 28011.
-- **Browser interface.** Install Google Chrome and the [Python Playwright package](https://playwright.dev/python/docs/library). Run `python tools/test-expansion-ui.py`. The default fixtures exercise both games without a game save. To supply your own recorded JSON frames, pass `--ffx-frame` and `--x2-frame`.
+- **Browser interface.** This version of the test uses local FFX Evrae and FFX-2 Chapter 5 gameplay captures. If you have those JSON frames, save them as `build/evrae-opening.json` and `build/ffx2-chapter5.json`, install Google Chrome and the [Python Playwright package](https://playwright.dev/python/docs/library), and run `python tools/test-expansion-ui.py`.
 
 For tested disc versions, emulator settings and the optional Steam bridge, see the [installation guide](../INSTALL.md). The [validation notes](../THOR-VALIDATION.md) distinguish device tests from capture replays.
