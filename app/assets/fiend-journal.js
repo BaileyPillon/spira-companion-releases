@@ -104,6 +104,12 @@ function openX2Bestiary(query, target = null) {
   signature = "";
   choose("x2-bestiary");
 }
+function x2LiveBestiaryTarget(current) {
+  if(current?.game!=="x2"||!current.battle||current.paused||!x2BestiaryTarget)return null;
+  return current.enemies?.find(foe=>foe.hp>0&&foe.name===x2BestiaryTarget.name&&
+    (!Number.isInteger(x2BestiaryTarget.id)||foe.id===x2BestiaryTarget.id)&&
+    (!Number.isInteger(x2BestiaryTarget.slot)||foe.slot===x2BestiaryTarget.slot))||null;
+}
 
 const x2Elements = ["Fire","Ice","Water","Lightning","Holy","Gravity"];
 const x2AffinityNames = {n:"Normal",w:"Weak",a:"Absorbs",i:"Immune",r:"Resists","?":"Unknown"};
@@ -193,6 +199,7 @@ function addX2FiendDetails(details, form) {
 function showX2Bestiary(current) {
   heading("Bestiary", "FFX-2 enemy forms, loot and locations");
   const entries = x2BestiaryEntries(current);
+  const target = x2LiveBestiaryTarget(current);
   const controls = element("div", "filters x2-bestiary-filters");
   const query = element("input");
   query.type = "search";
@@ -225,8 +232,8 @@ function showX2Bestiary(current) {
         row.append(element("p", "", [foe.level > 0 && "Lv. " + foe.level, number.format(foe.hp) + " HP",
           number.format(foe.mp) + " MP"].filter(Boolean).join(" · ")));
       }
-      const inFocus = x2BestiaryTarget && x2FiendName(x2BestiaryTarget.name) === x2FiendName(record.title);
-      const live = inFocus ? x2MatchFiendForm(record.forms, x2BestiaryTarget) : undefined;
+      const inFocus = target && x2FiendName(target.name) === x2FiendName(record.title);
+      const live = inFocus ? x2MatchFiendForm(record.forms, target) : undefined;
       if (inFocus && !live && record.forms.length) row.append(element("p", "field-note", "Compare the listed forms with your current target."));
       for (const form of record.forms) {
         showX2FiendForm(row, form, form === live, lootMatches.get(form));

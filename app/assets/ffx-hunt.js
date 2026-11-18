@@ -122,8 +122,9 @@ function huntReports(current, scope, focus = "", target = arenaTarget) {
       Number(local.includes(b.spot)) - Number(local.includes(a.spot)));
 }
 
-function openArenaHunt({focus = "", scope = focus ? "all" : "here"} = {}) {
+function openArenaHunt({focus = "", scope = focus ? "all" : "here", spot = null} = {}) {
   if (huntFiend !== focus || huntScope !== scope) huntExpanded.clear();
+  if (spot) huntExpanded.add(spot);
   huntFiend = focus;
   huntScope = scope;
   arenaView = "hunt";

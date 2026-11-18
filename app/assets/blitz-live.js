@@ -1,6 +1,26 @@
 "use strict";
 
 let blitzBreakSlots=new Set(),blitzLiveCarrier=null;
+let blitzLiveContext=null;
+function syncBlitzBreakSlots(current,connected=true) {
+  const match=current?.blitzMatch;
+  if(!match||current.paused||!connected) {
+    blitzBreakSlots.clear();
+    blitzLiveCarrier=null;
+    blitzLiveContext=null;
+    return;
+  }
+  const roster=JSON.stringify(match.players.map(player=>[player.slot,player.id]));
+  const previous=blitzLiveContext;
+  if(!previous||previous.disc!==current.disc||previous.carrier!==match.carrier||previous.roster!==roster||
+      previous.period!==match.period||previous.half!==match.half||match.elapsed<previous.elapsed||
+      match.score.some((score,index)=>score!==previous.score[index])||
+      Number.isFinite(current.timestamp)&&Number.isFinite(previous.timestamp)&&
+        (current.timestamp<previous.timestamp||current.timestamp-previous.timestamp>2500))blitzBreakSlots.clear();
+  blitzLiveCarrier=match.carrier;
+  blitzLiveContext={disc:current.disc,carrier:match.carrier,roster,period:match.period,half:match.half,elapsed:match.elapsed,
+    score:match.score.slice(),timestamp:current.timestamp};
+}
 function blitzMatchAdvice(match,breakSlots=[]) {
   if(!match||!Array.isArray(match.players))return null;
   const carrier=match.players.find(p=>p.slot===match.carrier);
@@ -24,12 +44,12 @@ function blitzMatchAdvice(match,breakSlots=[]) {
 }
 function showLiveBlitz(current) {
   const match=current.blitzMatch;
+  syncBlitzBreakSlots(current,!reconnecting);
   if(!match||current.paused||reconnecting){
     panel.append(entry(current.paused?"Match paused":"Waiting for a live Blitzball match","",
       "The pool view reads the International match script in the Blitzball pool. It clears during transitions instead of retaining a previous play."));
     showBlitzMatchTips(true);return;
   }
-  if(blitzLiveCarrier!==match.carrier){blitzLiveCarrier=match.carrier;blitzBreakSlots.clear();}
   const advice=blitzMatchAdvice(match,[...blitzBreakSlots]);
   const time=seconds=>`${Math.floor(seconds/60)}:${String(seconds%60).padStart(2,"0")}`;
   panel.append(element("h2","",`${match.score[0]} – ${match.score[1]} · ${time(match.elapsed)} / ${time(match.period)}`));

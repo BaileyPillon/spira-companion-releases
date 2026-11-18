@@ -992,6 +992,17 @@ function openArenaCreation(name = "") {
   choose("arena");
 }
 
+function closestCaptureRegion(current,target) {
+  if (!hasCaptureData(current)) return null;
+  const regions=[];
+  for (const [region,names] of Object.entries(arenaRegions)) {
+    const counts=names.map(name=>arenaCaptureCount(current,name));
+    if (counts.some(count=>count==null)) continue;
+    const needed=counts.reduce((sum,count)=>sum+Math.max(0,target-count),0);
+    if (needed) regions.push({region,needed});
+  }
+  return regions.sort((a,b)=>a.needed-b.needed||a.region.localeCompare(b.region))[0]||null;
+}
 function showArena(current) {
   heading("Monster Arena", arenaView === "hunt" ? "Encounter scouting and live captures" : "Live captures from your save");
   const views = element("div", "filters");
@@ -1026,6 +1037,9 @@ function showArena(current) {
   const sheet = element("div", "sheet");
   const goals = arenaGoals(current).flatMap(([, rows]) => rows);
   const redraw = () => {
+    const next=closestCaptureRegion(current,arenaTarget);
+    nearest.hidden=!next;
+    if(next) nearest.textContent="Closest unfinished region · "+next.region+" · "+next.needed+(next.needed===1?" catch":" catches")+" left";
     sheet.replaceChildren();
     const counts = arenaRegions[arenaRegion].map(name => [name, arenaCaptureCount(current, name)]);
     const caught = counts.filter(([,count]) => count > 0).length;
@@ -1052,8 +1066,13 @@ function showArena(current) {
       sheet.append(row);
     }
   };
-  controls.append(options("Capture region", Object.keys(arenaRegions).map(name => [name,name]), arenaRegion,
-    value => { arenaRegion = value; redraw(); }));
+  const regionSelect=options("Capture region", Object.keys(arenaRegions).map(name => [name,name]), arenaRegion,
+    value => { arenaRegion = value; redraw(); });
+  const nearest=action("Closest unfinished region",()=>{
+    const next=closestCaptureRegion(current,arenaTarget);
+    if(next){arenaRegion=next.region;regionSelect.value=arenaRegion;redraw();}
+  });
+  controls.append(regionSelect,nearest);
   controls.append(options("Capture goal", [[1,"Goal: 1 each"],[5,"Goal: 5 each"],[10,"Goal: 10 each"]], arenaTarget,
     value => { arenaTarget = Number(value); redraw(); }));
   const missing = action("Missing only", () => {

@@ -12,6 +12,14 @@ function battleHighMultiply(a,b) {
   const product=BigInt(a)*BigInt(b),denominator=4294967295n;
   return Number(product/denominator-(product<0n&&product%denominator!==0n?1n:0n));
 }
+function battleActionElements(action, abilities) {
+  const elements = new Set(action.elements);
+  if (action.weapon) for (const [ability, element] of [["Firestrike","Fire"],["Icestrike","Ice"],
+    ["Lightningstrike","Thunder"],["Waterstrike","Water"]]) {
+    if (abilities.has(ability)) elements.add(element);
+  }
+  return [...elements];
+}
 function battleSingleDamage(action,user,target,roll,critical=false) {
   const status=actor=>new Set(statusEffects("x",actor).split(" · "));
   const us=status(user),ts=status(target),ua=user.battleAttributes,ta=target.battleAttributes;
@@ -42,8 +50,7 @@ function battleSingleDamage(action,user,target,roll,critical=false) {
     damage=Math.floor(damage*(roll+240)/256);
   }
   if(critical)damage*=2;
-  const elements=[...action.elements];
-  if(action.weapon)for(const [ability,element]of [["Firestrike","Fire"],["Icestrike","Ice"],["Lightningstrike","Thunder"],["Waterstrike","Water"]])if(auto.has(ability))elements.push(element);
+  const elements=battleActionElements(action,auto);
   const affinities=target.battleId>=20?ffxData.enemies[target.id]?.affinities||{}:{};
   if(!(target.battleId>=20))for(const name of ["Fire","Ice","Thunder","Water"]){
     const equipped=[...targetAuto].map(id=>ffxData.abilities[id]);const prefix=name==="Thunder"?"Lightning":name;
@@ -86,7 +93,12 @@ function compareBattleAction(current,user,target,id) {
   if(action.weapon&&(!weapon||!Number.isInteger(weapon.power)))issues.push("Weapon power is unavailable.");
   if(action.weapon&&weapon?.celestial)issues.push("Celestial weapon scaling is not modeled.");
   if(action.reflect&&ts.has("Reflect"))issues.push("Reflected target selection is not modeled.");
-  if(action.elements.some(e=>ts.has(({Fire:"NulBlaze",Ice:"NulFrost",Thunder:"NulShock",Water:"NulTide"})[e])))issues.push("A Nul effect can block this cast.");
+  const nulEffects={Fire:"NulBlaze",Ice:"NulFrost",Thunder:"NulShock",Water:"NulTide"};
+  const requiredNuls=battleActionElements(action,autos).map(element=>nulEffects[element]).filter(Boolean);
+  if(requiredNuls.length&&requiredNuls.every(effect=>ts.has(effect)))issues.push("A Nul effect can block this action.");
+  const incapacitated=["KO","Petrify","Sleep","Confuse"].find(effect=>us.has(effect));
+  if(user.hp<=0||incapacitated)issues.push("This character cannot act while "+(incapacitated||"KO")+" is active.");
+  if(us.has("Berserk")&&action.name!=="Attack")issues.push("Berserk restricts this character to Attack.");
   if(action.magic&&us.has("Silence"))issues.push("This character is silenced.");
   if(user.mp<mp)issues.push("Not enough MP.");
   if(Number(id)<0x3000&&!(itemAmounts(current.items).get(Number(id))>0))issues.push("No stock remaining.");

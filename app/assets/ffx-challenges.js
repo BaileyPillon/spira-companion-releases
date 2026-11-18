@@ -228,9 +228,9 @@ function showCactuarChallenge(data) {
 function showNoEncounters(current) {
   const pieces = current.party.flatMap(member => (member.gear || []).filter(piece => piece.abilities.includes(0x801d))
     .map(piece => [member,piece]));
-  const equipped = pieces.find(([member,piece]) => member.active && piece.equipped);
+  const equipped = pieces.find(([,piece]) => piece.equipped);
   const details = element("details", "arena-pending");
-  details.append(element("summary", "", equipped ? "No Encounters equipped on your front line" :
+  details.append(element("summary", "", equipped ? "No Encounters equipped" :
     pieces.length ? "No Encounters gear in inventory" : "Find No Encounters gear"));
   for (const [member,piece] of pieces) {
     details.append(element("p", "", `${catalog.x.party[member.id]} · ${gearName(piece,member.id)}${piece.equipped ? " · equipped" : ""}`));

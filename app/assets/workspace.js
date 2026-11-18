@@ -10,7 +10,7 @@ function detailKey(details) {
   return details.dataset.detailKey || details.querySelector("summary")?.textContent;
 }
 function rememberExpansionUi() {
-  if (panel.dataset.page !== tab || !["workspace","planner","grid-lab","battle-lab","trials","blitzball","chapter-checklist"].includes(tab)) return null;
+  if (panel.dataset.page !== tab || !(tab.startsWith("plan-") || ["workspace","planner","grid-lab","battle-lab","trials","blitzball","chapter-checklist"].includes(tab))) return null;
   const focused = panel.contains(document.activeElement) ? document.activeElement : null;
   return {
     scroll: panel.scrollTop,
@@ -36,6 +36,8 @@ function restoreExpansionUi(saved) {
   panel.scrollTop = saved.scroll;
 }
 let workspaceQuery = "";
+let workspaceKind = "", workspaceLimit = 40;
+let workspaceGamePins = readCompanionSetting("spira.workspace.game-pins",false) === true;
 let workspacePins = readCompanionSetting("spira.workspace.v1",[]);
 if (!Array.isArray(workspacePins)) workspacePins = [];
 workspacePins=workspacePins.filter(p=>p&&typeof p.key==="string"&&typeof p.name==="string"&&typeof p.kind==="string").slice(0,40);
@@ -45,7 +47,21 @@ const workspaceTools = [
   ["grid-lab","Grid sandbox","Build and compare hypothetical Sphere Grid routes","x"],
   ["battle-lab","Battle comparison","Compare supported actions against your target","x"],
   ["status","Status","Live party, battle and story guidance"],
-  ["guide","Guide","Offline Jegged walkthrough"],
+  ["guide","Guide","Offline FFX Jegged walkthrough"],
+  ["supplies","Items","Inventory, recovery supplies and spheres"],
+  ["equip","Equipment","Gear, accessories and abilities"],
+  ["party","Party","Formation, health and character progress"],
+  ["mix","Rikku’s Mix","Overdrive recipes and ingredients","x"],
+  ["grid","Sphere Grid","Activation progress and routes","x"],
+  ["arena","Monster Arena","Capture targets, hunts and creation rewards","x"],
+  ["bestiary","Bestiary","Fiends, drops, steals and bribes","x"],
+  ["x2-bestiary","Bestiary","Observed FFX-2 battle forms","x2"],
+  ["field-guide","Fiend Guide","Oversouls and Gun Mage abilities","x2"],
+  ["missables","Missables","Story deadlines and collectibles","x"],
+  ["collections","Collections","Primers, Celestials and Aeons","x"],
+  ["map","Map","Field map, player position and exits"],
+  ["journal","Journal","Recently visited areas"],
+  ["setup","Setup","Connections and companion preferences"],
   ["prep","Boss Prep","Armor, materials and AP farming","x"],
   ["blitzball","Blitzball","Team builder, rewards and techniques","x"],
   ["challenges","Challenges","Minigame records and live route guidance"],
@@ -53,19 +69,26 @@ const workspaceTools = [
   ["chapter-checklist","Chapter Checklist","FFX-2 chapter checks and missing scenes","x2"],
   ["profiles","Profiles","Separate playthroughs and portable backups"]
 ].map(([tab,name,detail,game]) => ({key:"tool:"+tab, kind:"Tool", tab, name, detail, game}));
+if (typeof fieldPlans !== "undefined") for(const plan of fieldPlans) {
+  workspaceTools.push({...plan,key:"tool:"+plan.tab,kind:"Tool"});
+}
 function toolSupportsGame(tab, game) {
   const required = workspaceTools.find(tool => tool.tab === tab)?.game;
   return !required || required === game;
 }
 function workspaceIndex(current) {
   const game = current?.game || "x";
-  const rows = workspaceTools.filter(tool => !tool.game || tool.game === game);
+  const rows = workspaceTools.filter(tool => (!tool.game || tool.game === game) &&
+    (!current || workspaceToolAvailable(tool.tab,current)));
   const data = game === "x" ? ffxData : {items:Object.fromEntries(catalog.x2.recovery.map((name,i)=>[8192+i,name]))};
   for (const [id,value] of Object.entries(data.items || {})) {
     const name = typeof value === "string" ? value : value.name || value[0];
     if (name) rows.push({key:game+":item:"+id,kind:"Item",name,detail:"Inventory and acquisition sources",game,id:Number(id)});
   }
   if (game === "x") {
+    if(current?.disc && typeof mixResults!=="undefined") for(const mix of mixResults) {
+      rows.push({key:"x:mix:"+mix.index,kind:"Mix",name:mix.name,detail:mix.effect,game});
+    }
     for (const [id,foe] of Object.entries(ffxData.enemies)) if (foe.name && foe.hp) rows.push({key:"x:fiend:"+id,kind:"Fiend",name:foe.name,detail:(foe.area || "")+" · Drops, steals and bribes",id:Number(id),game});
     for (const [id,value] of Object.entries(ffxData.abilities)) {
       const name = typeof value === "string" ? value : value.name || value[0];
@@ -82,16 +105,47 @@ function workspaceIndex(current) {
       for(const [id,info]of Object.entries(table||{}))if(info?.[0])rows.push({key:`x2:${key}:${id}`,kind,name:info[0],detail:info[1]||"",id:Number(id),game,collection:key,owned:owned.includes(Number(id))});
     }
   }
+  if(game==="x2" && current?.oversoul) {
+    for(const [i,[name,fiends,note]] of x2BlueBullets.entries())
+      rows.push({key:"x2:blue:"+i,kind:"Blue Bullet",name,detail:[fiends.join(", "),note].filter(Boolean).join(" · "),id:i,game});
+    for(const [name,,place,floor] of x2OversoulEntries)
+      rows.push({key:"x2:oversoul:"+name,kind:"Oversoul",name,detail:[place,floor && "Via Infinito "+floor].filter(Boolean).join(" · "),game});
+  }
   return rows;
 }
-function searchWorkspace(rows,query) {
-  const words = query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
-  if (!words.length) return rows.filter(row => row.kind === "Tool");
-  return rows.filter(row => words.every(word => (row.name+" "+row.kind+" "+row.detail).toLocaleLowerCase().includes(word)))
-    .sort((a,b) => Number(b.name.toLocaleLowerCase() === query.toLocaleLowerCase()) - Number(a.name.toLocaleLowerCase() === query.toLocaleLowerCase()) || a.name.localeCompare(b.name));
+function workspaceToolAvailable(tab,current) {
+  if (["missables","collections"].includes(tab)) return !!current.progress;
+  if (tab==="map" || tab==="x2-bestiary" || tab==="mix") return !!current.disc;
+  if (tab==="field-guide") return !!current.oversoul;
+  if (tab==="chapter-checklist") return !!current.chapter;
+  if (tab==="equip") return !!(current.grid || current.loadout);
+  if (["grid","arena","bestiary","prep","blitzball"].includes(tab)) return !!current.grid;
+  return true;
+}
+function workspaceWords(text) {
+  return text.normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[’']/g,"").replace(/[^a-z0-9]+/g," ").trim();
+}
+const workspaceAliases = new Map([["bhpl","break hp limit"],["bdl","break damage limit"],["od","overdrive"]]);
+function searchWorkspace(rows,query,kind="") {
+  const words=workspaceWords(query).split(/\s+/).filter(Boolean).map(word=>workspaceAliases.get(word) || word);
+  if(!words.length)return rows.filter(row=>row.kind===(kind||"Tool"));
+  const phrase=words.join(" "), matches=[];
+  for(const row of rows) {
+    if(kind && row.kind!==kind)continue;
+    const name=workspaceWords(row.name), text=name+" "+workspaceWords(row.kind+" "+row.detail);
+    if(words.every(word=>text.includes(word)))matches.push({row,rank:name===phrase?0:name.startsWith(phrase)?1:
+      words.every(word=>name.includes(word))?2:3});
+  }
+  return matches.sort((a,b)=>a.rank-b.rank || a.row.name.localeCompare(b.row.name)).map(match=>match.row);
 }
 function openWorkspaceEntry(row) {
   if (row.kind === "Tool") { choose(row.tab);return; }
+  if (row.kind === "Mix") { mixInStock=false;choose("mix",row.name);return; }
+  if (row.kind === "Oversoul") { openX2FieldGuide("oversoul",0,row.name);return; }
+  if (row.kind === "Blue Bullet") {
+    const current=sample||frame, member=[0,1,2].find(id=>!x2BlueLearned(current,id,row.id))??0;
+    openX2FieldGuide("blue",member,row.name);return;
+  }
   if (row.kind === "Item") {
     if (row.game === "x") openItemSources(row.name);else { inventoryQuery=row.name;choose("supplies"); }
   } else if (row.kind === "Fiend") choose("bestiary",row.name);
@@ -112,6 +166,13 @@ function toggleWorkspacePin(row) {
   if (!saveCompanionSetting("spira.workspace.v1",next)) return false;
   workspacePins=next;return true;
 }
+function promoteWorkspacePin(key) {
+  const pin=workspacePins.find(item=>item.key===key);
+  if(!pin)return false;
+  const next=[pin,...workspacePins.filter(item=>item.key!==key)];
+  if(!saveCompanionSetting("spira.workspace.v1",next))return false;
+  workspacePins=next;return true;
+}
 function openWorkspaceFromGuide() {
   guideDetour=true;guideHost.classList.add("guide-detour");clearGuideSuggestion();choose("workspace");
 }
@@ -123,7 +184,20 @@ function showWorkspace(current) {
   search.setAttribute("aria-label","Search companion");search.value=workspaceQuery;
   const results=element("div","sheet"),pins=element("div","sheet"),status=element("p","field-note");status.setAttribute("role","status");
   const index=workspaceIndex(current);
-  function row(item, available = true) {
+  const kinds=[...new Set(index.map(item=>item.kind))].sort();
+  if(!kinds.includes(workspaceKind))workspaceKind="";
+  const filter=options("Search category",[["","All categories"],...kinds.map(kind=>[kind,kind])],workspaceKind,value=>{
+    workspaceKind=value;workspaceLimit=40;draw();
+  });
+  const pinFilter=element("label","goal-choice"),check=element("input");check.type="checkbox";check.checked=workspaceGamePins;
+  pinFilter.append(check,document.createTextNode("Current game pins only"));
+  check.addEventListener("change",()=>{
+    if(!saveCompanionSetting("spira.workspace.game-pins",check.checked)){
+      check.checked=workspaceGamePins;status.textContent="Could not save the pin filter.";return;
+    }
+    workspaceGamePins=check.checked;draw();
+  });
+  function row(item, available = true, canPromote = false) {
     const owned=item.kind==="Item" && current?.items ? itemAmounts(current.items).get(item.id) || 0 : null;
     const node=entry(item.name,item.kind+(owned==null?"":` · ${owned} owned`),item.detail);
     const open=action("Open "+item.name,()=>openWorkspaceEntry(item));
@@ -134,21 +208,32 @@ function showWorkspace(current) {
     node.append(action(pinned?"Unpin":"Pin",()=>{
       if(!toggleWorkspacePin(item)) {status.textContent="Could not save the pin. Keep up to 40 pins and check available storage.";return;}
       draw();
-    }));return node;
+    }));
+    if(canPromote)node.append(action("Move to first",()=>{
+      if(!promoteWorkspacePin(item.key)){status.textContent="Could not save the pin order.";return;}
+      draw();
+    }));
+    return node;
   }
   function draw(){
     results.replaceChildren();pins.replaceChildren();
-    const matches=searchWorkspace(index,workspaceQuery);
-    status.textContent=workspaceQuery?`${matches.length} results${matches.length>60?" · refine your search to see more":""}`:"";
-    for(const item of matches.slice(0,60)) results.append(row(item));
+    const matches=searchWorkspace(index,workspaceQuery,workspaceKind);
+    status.textContent=workspaceQuery||workspaceKind?`${Math.min(workspaceLimit,matches.length)} of ${matches.length} results`:"";
+    for(const item of matches.slice(0,workspaceLimit)) results.append(row(item));
+    if(matches.length>workspaceLimit)results.append(action("Show more results",()=>{
+      const start=workspaceLimit;workspaceLimit+=40;draw();
+      results.children[start]?.querySelector("button")?.focus({preventScroll:true});
+    }));
     if(!matches.length) results.append(entry("No matches","","Try an item name, an effect, or a tool such as Grid."));
     for (const pin of workspacePins) {
       const live = index.find(item => item.key === pin.key);
-      pins.append(row(live || pin, !!live));
+      if(workspaceGamePins && !live)continue;
+      pins.append(row(live || pin, !!live, pins.childElementCount>0));
     }
     if(!workspacePins.length) pins.append(entry("Keep useful tools here","","Pin results below to build your own workspace."));
+    else if(!pins.childElementCount)pins.append(entry("No available pins for this game"));
   }
-  search.addEventListener("input",()=>{workspaceQuery=search.value;draw();});
+  search.addEventListener("input",()=>{workspaceQuery=search.value;workspaceLimit=40;draw();});
   const noteLabel=element("label","plan-field","Playthrough notes");
   const note=element("textarea");note.rows=3;note.maxLength=10000;note.value=typeof workspaceNote==="string"?workspaceNote:"";
   note.setAttribute("aria-label", "Playthrough notes");
@@ -159,5 +244,6 @@ function showWorkspace(current) {
     }
   });
   noteLabel.append(note);
-  panel.append(element("h2","","Pinned"),pins,noteLabel,element("h2","","Search everything"),search,status,results);draw();
+  const searchBar=element("div","filters");searchBar.append(search,filter);
+  panel.append(element("h2","","Pinned"),pinFilter,pins,noteLabel,element("h2","","Search everything"),searchBar,status,results);draw();
 }

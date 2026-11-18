@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.spiracompanion.thor" android:versionCode="48" android:versionName="1.38.3">
+    package="com.spiracompanion.thor" android:versionCode="49" android:versionName="1.39.0">
     <uses-sdk android:minSdkVersion="30" android:targetSdkVersion="34" />
     <uses-permission android:name="android.permission.INTERNET" />
     <application android:label="Spira Companion" android:theme="@android:style/Theme.Material.NoActionBar"

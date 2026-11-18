@@ -21,6 +21,7 @@ const x2BlueBullets = [
 ];
 
 let x2FieldMode = "oversoul";
+let x2ManualOnly = false;
 let x2FieldQuery = "";
 let x2FieldMissing = false;
 let x2InfinitoFloor = "";
@@ -87,6 +88,7 @@ function openX2FieldGuide(mode, member = 0, query = "") {
   x2FieldQuery = query;
   x2FieldMissing = false;
   x2InfinitoFloor = "";
+  x2ManualOnly = false;
   signature = "";
   choose("field-guide");
 }
@@ -120,7 +122,7 @@ function x2FieldRows(current) {
     const description = [place === "Via Infinito" && floor ? "" : place,
       floor && `Via Infinito ${floor === "Any" ? "any floor" : "F" + floor}`]
       .filter(Boolean).join(" · ");
-    return {name, key, description, floor, saved, done:saved || x2FieldChecks.has(key),
+    return {name, key, description, floor, saved, mapped:bit!=null, done:saved || x2FieldChecks.has(key),
       note:bit == null ? "Manual tracking" : saved ? "Seen in Shinra’s Bestiary" : "Watches Shinra’s Bestiary"};
   });
 }
@@ -151,6 +153,10 @@ function showX2FieldGuide(current) {
   missingLabel.prepend(missing);
   filters.append(query);
   if (x2FieldMode === "oversoul") {
+    const label=element("label","mix-filter","Manual entries only"), checkbox=element("input");
+    checkbox.type="checkbox";checkbox.checked=x2ManualOnly;
+    checkbox.addEventListener("change",()=>{x2ManualOnly=checkbox.checked;draw();});
+    label.prepend(checkbox);filters.append(label);
     const floor = element("input", "infinito-floor");
     floor.type = "number";
     floor.min = "1";
@@ -168,6 +174,7 @@ function showX2FieldGuide(current) {
     const blue = x2FieldMode === "blue";
     const records = x2FieldRows(current);
     const found = records.filter(record => (!x2FieldMissing || !record.done) &&
+      (blue || !x2ManualOnly || !record.mapped) &&
       (blue || x2MatchesFloor(record.floor, Number(x2InfinitoFloor))) &&
       `${record.name} ${record.description}`.toLowerCase().includes(x2FieldQuery.trim().toLowerCase()));
     description.textContent = blue ? (Number.isInteger(current.blueBullets?.[x2BlueMember]) ?
@@ -175,6 +182,7 @@ function showX2FieldGuide(current) {
       "Mark abilities after your Gun Mage learns them. Enemies in the current fight appear first.") :
       "Seeing a fiend Oversoul is enough. Flee to keep the family’s Oversoul ready for the next encounter. Supported entries fill in from Shinra’s Bestiary.";
     summary.textContent = `${records.filter(record => record.done).length} / ${records.length} ${blue ? "learned" : "seen"}`;
+    if(!blue && x2ManualOnly)summary.textContent+=" · "+found.length+" manual entries in this selection";
     sheet.replaceChildren();
     let focus;
     for (const record of found) {

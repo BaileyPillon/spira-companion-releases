@@ -510,3 +510,11 @@ code { color: var(--text); overflow-wrap: anywhere; }
 .gear-drop-detail summary { min-height: 44px; padding-block: 11px; cursor: pointer; }
 .gear-drop-detail summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .gear-drop-detail .tracker-actions { align-items: center; margin-block: 4px; }
+.plan-links { margin-block: 6px 12px; }
+.notebook-controls { align-items: end; margin-block: 12px; }
+.notebook-controls label { flex: 1 1 145px; min-width: 0; }
+.notebook-controls select, .notebook-controls input { min-width: 0; width: 100%; }
+.notebook-controls input { min-height: 44px; font: inherit; color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px; }
+.notebook-controls input:focus-visible { outline: 2px solid var(--accent); }
+.notebook-results > .planner-config { padding-inline: 12px; }
+.notebook-results > h2 { margin-inline: 12px; }

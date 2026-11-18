@@ -4,6 +4,10 @@
 
 ## Final Fantasy X
 
+**Plan a farming session.** In **Arena → Capture circuit**, choose a catch goal to see up to three complementary hunting spots. In **Equip → Customization shopping list**, select an ability and the number of pieces you want. For example, three Auto-Haste pieces need 240 Chocobo Wings in total. Craft in batches as you collect them. **Bestiary → Bribe shopping comparison** prices the next inventory target across eligible fiends. **Items → Farming ledger** records your starting inventory and gil so you can see the net change.
+
+In **Mix → Mix ingredient reserves**, choose an ingredient and how many to keep. Then select a Mix to find combinations that leave that reserve intact.
+
 **Keep the walkthrough on the bottom screen.** This optional reader checks the exact file checksum of one offline Jegged export. You supply the file separately. The map, battle tools and Cloister guides work with the game alone.
 
 If you have the matching `FFX - Complete Offline Walkthrough.html`, open **Guide → Choose walkthrough**, select it and tap **Full screen**. The page follows you between mapped areas and holds your place during ordinary battles. **Pause follow** lets you read ahead. **Back to game** returns to the current section.
@@ -26,6 +30,10 @@ The original HTML export is 40,660,758 bytes. Its SHA-256 checksum is `5cf7b6425
 | You’re playing Blitzball or chasing a sigil | **Blitzball** covers rosters, contracts, Techcopy, Wakka’s prizes and live matches. **Challenges** tracks Catcher Chocobo, Butterfly Catcher, lightning records and the current Cactuar clue. Start a fresh lightning streak at zero to use the estimate. |
 
 ## Final Fantasy X-2
+
+**Check what changed between saves.** Open **Chapter Checklist → Compare chapter saves** and bookmark the live game before advancing or loading an older save. The comparison lists gained and absent event flags by interaction. For a trip through the current chapter, **Chapter itinerary** groups unresolved checks by destination and faction. The percentage tools use the USA disc’s mapped event flags.
+
+**Finish party and fiend goals.** Open **Fiend Guide → Gun Mage party board** to compare Blue Bullets for Yuna, Rikku and Paine. **Via Infinito floor sweep** lists outstanding Oversouls between two floors. In **Equip → Next AP abilities**, pick a character to see which partially learned abilities need the fewest additional AP.
 
 **Find a scene you missed.** Open **Chapter Checklist**, choose a chapter and expand a scene. The guide groups 525 mapped flags into scene checks with locations and trigger instructions. Some depend on earlier choices. Use **Save details** to see what the game recorded. The example below shows a Chapter 5 save and the instructions for watching a Crimson Record at Shinra’s station.
 

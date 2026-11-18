@@ -1,5 +1,7 @@
 # Thor validation
 
+**1.39.0** passed 147 JavaScript regressions and 45 native reader and write-guard checks. Chrome exercised all ten planning tools with synthetic frames and with saved FFX International and FFX-2 USA captures. Some fields were overridden in the capture replay to isolate changes such as a newly recorded scene or a missing inventory item. Browser checks covered 350, 620 and 900 pixel widths. The Thor was unavailable for installation and fresh gameplay testing. [Ranked changes and research](docs/research-1.39.md) · [Defect reproductions](docs/review-fixes-1.39.md)
+
 **1.38.2** was tested on Windows with a synthetic PINE server and in Chrome using synthetic frames plus saved FFX International and FFX-2 USA captures. The browser checks include switching games with an older tool pin, retaining the notes cursor during an inventory update, and keeping the selected scene and route filter through a Chapter 5 checklist refresh. All 19 visible FFX tabs and 13 visible FFX-2 tabs opened with their respective captures. The Windows bridge compiled for x86. On-device pause/resume, switching from ARMSX2 to Steam, and playing through all six temples remain hardware checks.
 
 **1.38.1** was tested on the Thor in Bevelle and Zanarkand. The Bevelle guide reacted when Tidus returned a sphere and the marker followed him on the Zanarkand diagram. [Cloister and chapter-checklist evidence](GUIDANCE-1.38.md#gameplay-validation)

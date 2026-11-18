@@ -4,6 +4,7 @@ import base64
 import json
 from pathlib import Path
 from playwright.sync_api import sync_playwright
+from field_plan_ui import check_field_plans
 
 parser=argparse.ArgumentParser()
 parser.add_argument('--screenshots',action='store_true')
@@ -160,6 +161,7 @@ with sync_playwright() as p:
     assert page.evaluate('document.body.classList.contains("guide-fullscreen")')
     assert guide.locator('body').evaluate('()=>scrollY')==450
     page.get_by_role('button',name='Exit full screen',exact=True).click()
+    check_field_plans(page, ffx, x2, feed, choose, out if args.screenshots else None)
     if args.screenshots:
         for width,height in [(350,760),(620,620),(900,620)]:
             page.set_viewport_size({'width':width,'height':height});feed(ffx)
@@ -181,4 +183,4 @@ with sync_playwright() as p:
             page.screenshot(path=str(out/f'scene-audit-{width}.png'))
     assert not errors,errors
     browser.close()
-print('Browser checks passed: tool navigation, battle targets, grid save/import, profile switching, search deep links, scene audit, Blitzball transitions and stable controls.')
+print('Browser checks passed: ten field plans, search, profile switching, battles, chapter guidance, grid save/import, Blitzball and full-screen guide navigation.')

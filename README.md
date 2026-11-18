@@ -13,6 +13,8 @@
 
 *Zanarkand Cloister, captured on the Thor. The gold dot follows Tidus as you move.* [Game screen](docs/images/zanarkand-top.webp) · [Companion screen](docs/images/zanarkand-guide.webp)
 
+**New in 1.39.** Plan your next three Monster Arena stops, price materials for several armor pieces, or bookmark an FFX-2 save and see which scene flags changed. Open the tools from **Arena**, **Equip**, **Chapter Checklist** or **Workspace**. [All 30 changes and the player research behind them](docs/research-1.39.md)
+
 ## Set up your Thor
 
 Start with your own supported PS2 game in **ARMSX2** and its game entry in **Cocoon**. [Check your disc version](#supported-ps2-versions)

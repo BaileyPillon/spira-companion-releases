@@ -75,6 +75,8 @@ function validFrame(next) {
 }
 
 function choose(nextTab, initialQuery = null, bribeTarget = null, itemSources = false) {
+  const plan = typeof fieldPlanFor === "function" && fieldPlanFor(nextTab);
+  if (plan && tab !== nextTab) fieldPlanOrigin = tab === plan.parent ? tab : "workspace";
   if (typeof coachManualNavigation === "function") coachManualNavigation();
   if (nextTab === "missables") focusedMissable = initialQuery;
   returningToMix = nextTab === "bestiary" && tab === "mix" && initialQuery != null;
@@ -114,6 +116,7 @@ function update(raw, granted) {
     if (typeof updateLiveCoach === "function") updateLiveCoach(null);
     updateHuntSession(null);
     if (typeof updateLightningTracking === "function") updateLightningTracking(null);
+    if (typeof syncBlitzBreakSlots === "function") syncBlitzBreakSlots(null);
     showConnection("reconnecting");
     if (typeof updateGuide === "function") updateGuide(tab === "guide", frame, "reconnecting");
     render();
@@ -133,6 +136,7 @@ function update(raw, granted) {
   }
   updateHuntSession(state === "live" ? next : null);
   if (typeof updateLightningTracking === "function") updateLightningTracking(state === "live" ? next : null);
+  if (typeof syncBlitzBreakSlots === "function") syncBlitzBreakSlots(state === "live" ? next : null);
   if (typeof updateX2RanchWatch === "function" && state === "live") updateX2RanchWatch(next);
   frame = valid ? next : null;
   if (state === "live") {
@@ -312,7 +316,7 @@ function supplies(current) {
       const count = amounts.get(0x2000 + index) || 0;
       if (query ? !normalizeGuideText(name).includes(query) : !count && ![0, 1, 4, 6, 10, 15].includes(index)) continue;
       const row = element("div", "item");
-      row.append(query ? action(name, () => openItemSources(name)) : element("span", "", name),
+      row.append(current.game === "x" && current.grid ? action(name, () => openItemSources(name)) : element("span", "", name),
         element("strong", "", "×" + count));
       list.append(row);
     }
@@ -380,7 +384,9 @@ function render() {
   const ffx = !!current?.grid;
   const hasMix = current?.game === "x" && !!current.disc;
   const { timestamp, ...data } = current || {};
+  const fieldPlan = typeof fieldPlanFor === "function" && fieldPlanFor(tab);
   let displayed = data;
+  if (fieldPlan && current) displayed = fieldPlanSignature(fieldPlan.id,current);
   const {fieldMap, fieldPlayer, fieldExits, loadout, storyFlags, dressphereAp, oversoul, ...statusData} = data;
   if (tab === "status") displayed = [reconnecting, statusData, oversoul, fieldMap, fieldExits,
     loadout?.dresspheres, !!loadout?.gridInfo];
@@ -388,7 +394,8 @@ function render() {
   if (tab === "profiles") displayed = null;
   if (tab === "battle-lab") displayed = [reconnecting,data.disc,data.battle,data.paused,data.party,data.enemies,data.items];
   if (tab === "trials") displayed = [data.room,data.story,data.cloister,data.progress?.trials,data.paused,reconnecting];
-  if (tab === "workspace") displayed = [data.game, data.items,loadout?.accessories,loadout?.grids,loadout?.dresspheres];
+  if (tab === "workspace") displayed = [data.game,data.disc,!!data.grid,!!data.progress,!!data.oversoul,!!data.chapter,
+    data.items,loadout?.accessories,loadout?.grids,loadout?.dresspheres,loadout?.accessoryInfo,loadout?.gridInfo,loadout?.dressphereInfo];
   if (tab === "grid-lab") displayed = [data.game, !!data.grid, data.items];
   if (tab === "planner") displayed = [data.disc, data.room, data.story, data.items, data.arena, data.progress,
     data.party?.map(member => [member.id, member.gear])];
@@ -406,7 +413,8 @@ function render() {
     !!loadout, !!data.experiment, !!data.towers];
   if (tab === "field-guide") displayed = x2FieldMode === "blue" ?
     [!!oversoul, data.blueBullets, [...x2BlueEncounters(data)]] : [oversoul];
-  if (tab === "x2-bestiary") displayed = [data.disc, oversoul, observedFiends.length, observedFiends.at(-1)];
+  if (tab === "x2-bestiary") displayed = [data.disc, oversoul, observedFiends.length, observedFiends.at(-1), data.battle,
+    data.paused, data.enemies?.map(foe => [foe.slot,foe.id,foe.name,foe.hp > 0,foe.maxHp,foe.maxMp,foe.level])];
   if (ffx && tab === "challenges") displayed = [data.room, data.progress?.challenges, data.progress?.keyItems,
     data.items, data.party.map(member => [member.id,member.active,member.gear]), lightningRun?.count, lightningInterrupted, data.battle,
     data.story, reconnecting, fieldMap, [data.butterfly?.active,data.butterfly?.caught], data.catcher];
@@ -470,6 +478,7 @@ function render() {
     if (button.dataset.tab === "x2-bestiary") button.hidden = current?.game !== "x2" || !current.disc;
     if (button.dataset.tab === "cheats") button.hidden = !window.SpiraCheats?.visible();
     if (button.dataset.tab === tab) button.setAttribute("aria-current", "page");
+    else if (fieldPlan && button.dataset.tab===fieldPlanOrigin) button.setAttribute("aria-current","location");
     else button.removeAttribute("aria-current");
   }
   if (typeof rememberCoachUi === "function") rememberCoachUi();
@@ -477,6 +486,7 @@ function render() {
   if (tab === "setup") setup();
   else if (tab === "profiles") showProfiles();
   else if (tab === "workspace") showWorkspace(current);
+  else if (fieldPlan) showFieldPlan(current,fieldPlan);
   else if (tab === "grid-lab") showGridSandbox(current);
   else if (tab === "planner") showJourney(current);
   else if (tab === "battle-lab") showBattleComparison(current);
@@ -598,6 +608,7 @@ function render() {
     else if (current.game === "x2") showSequelBattle(current);
     if (current.battle) panel.append(statList(current));
   }
+  if (typeof fieldPlanLinks === "function") fieldPlanLinks(current);
   if (typeof guideReturnAction === "function" && !(typeof coachReturn !== "undefined" && coachReturn?.tab === "guide")) guideReturnAction();
   if (typeof coachReturnAction === "function") coachReturnAction();
   if(typeof restoreExpansionUi==="function")restoreExpansionUi(expansionUi);

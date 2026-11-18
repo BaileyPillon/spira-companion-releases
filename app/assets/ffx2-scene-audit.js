@@ -74,7 +74,10 @@ function showX2SceneAudit(current) {
     const groups=x2GroupSceneChecks(all);
     summary.textContent=`${all.length-pending.length} / ${all.length} mapped flags recorded · ${groups.filter(group=>!group.done).length} scene checks with unrecorded flags. Some checks apply only to one route.`;
     sheet.replaceChildren();const query=sceneAuditQuery.trim().toLowerCase();
-    for(const scene of groups.filter(row=>(branchCheck.checked||!row.conditional)&&(!sceneAuditMissing||!row.done)&&(!query||`${row.name} ${row.location} ${row.visit||""} ${row.action}`.toLowerCase().includes(query)))){
+    const shown=groups.filter(row=>(branchCheck.checked||!row.conditional)&&(!sceneAuditMissing||!row.done)&&(!query||`${row.name} ${row.location} ${row.visit||""} ${row.action}`.toLowerCase().includes(query)));
+    const missingInView=shown.reduce((sum,group)=>sum+group.flags.filter(flag=>!flag.done).length,0);
+    summary.textContent+=" Current selection shows "+shown.length+" of "+groups.length+" checks and "+missingInView+" unrecorded "+(missingInView===1?"flag.":"flags.");
+    for(const scene of shown){
       const faction=scene.branch==="league"?"Youth League route":scene.branch==="yevon"?"New Yevon route":scene.conditional?"Conditional scene":"";
       const row=entry(scene.name,[scene.done?"Recorded":scene.flags.find(flag=>!flag.done).state,faction].filter(Boolean).join(" · "),scene.action);
       row.append(element("p","field-note",scene.visit?`Where to start: ${scene.visit}`:scene.location));

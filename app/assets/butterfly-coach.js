@@ -1,6 +1,13 @@
 "use strict";
 
 let butterflyRouteChoice="north",butterflyRouteRun=null,butterflyLastRoom=null;
+function butterflySyncRun(run,current,course) {
+  if(!run||current.room!==course.room||run.room!==course.room)return null;
+  const state=current.butterfly;
+  if(!state)return run.active==null?run:null;
+  if(run.active&&!state.active||Number.isInteger(run.caught)&&state.caught<run.caught)return null;
+  return {...run,active:state.active,caught:state.caught};
+}
 function butterflyAdvance(run,point,course,now) {
   if(!run||!point||run.room!==course.room||now-run.last>2500||now<run.last)return null;
   if(now===run.last)return run;
@@ -19,12 +26,13 @@ function showButterflyRoute(current) {
   const course=butterflyRouteData[butterflyRouteChoice];
   const matching=current.room===course.room,postAirship=current.story>=2900;
   const live=matching&&postAirship&&!current.battle&&!current.paused&&!reconnecting&&!!current.fieldPlayer;
-  if(!live)butterflyRouteRun=null;
+  butterflyRouteRun=live?butterflySyncRun(butterflyRouteRun,current,course):null;
   panel.append(element("h2","","Butterfly route"));
   if(matching&&current.butterfly)panel.append(entry(current.butterfly.active?`${current.butterfly.caught} / 7 butterflies caught`:"Course inactive","Read from the current course script"));
   const controls=element("div","filters");controls.append(options("Butterfly route",Object.entries(butterflyRouteData).map(([key,value])=>[key,value.name]),butterflyRouteChoice,key=>{butterflyRouteChoice=key;butterflyRouteRun=null;signature="";render();}));
   const start=action("Start route guidance",()=>{
-    const first=course.landmarks[0][0];butterflyRouteRun={room:course.room,index:first,last:current.timestamp||Date.now()};paint();
+    const first=course.landmarks[0][0];butterflyRouteRun={room:course.room,index:first,last:current.timestamp||Date.now(),
+      active:current.butterfly?.active,caught:current.butterfly?.caught};paint();
   },true);start.disabled=!live;controls.append(start,action("Reset route guidance",()=>{butterflyRouteRun=null;paint();}));
   panel.append(controls,element("p","field-note",live?"Your triangle is live. The numbered route is for the post-airship course. Route progress follows your position; collected butterflies are counted by the game.":
     "Post-airship route reference. Enter this course after gaining free airship travel to show your live position. Other course layouts use different butterfly placements."));
@@ -54,6 +62,7 @@ function showButterflyRoute(current) {
       ctx.fillStyle="#eff5ef";ctx.font="bold 11px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(String(i+1),x,y);
     });
     if(player){const raw={x:player.x*unit,y:player.y*unit};
+      butterflyRouteRun=butterflySyncRun(butterflyRouteRun,frame||current,course);
       if(butterflyRouteRun)butterflyRouteRun=butterflyAdvance(butterflyRouteRun,raw,course,(frame||current).timestamp||Date.now());
       const [x,y]=point([raw.x,raw.y]);ctx.fillStyle="#f4cc90";ctx.strokeStyle="#101e25";ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x,y-8);ctx.lineTo(x+7,y+6);ctx.lineTo(x-7,y+6);ctx.closePath();ctx.fill();ctx.stroke();
       if(butterflyRouteRun&&butterflyRouteRun.index<course.path.length){const next=course.path[butterflyRouteRun.index],p=point(next);ctx.strokeStyle="#f4cc90";ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(...p);ctx.stroke();ctx.setLineDash([]);}

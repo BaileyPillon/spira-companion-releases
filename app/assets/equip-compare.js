@@ -6,6 +6,8 @@ const equipGoals = [
 ];
 let equipGoal = "physical";
 let x2AccessorySlot = 0;
+let x2AccessoryGoal = "physical";
+let x2AccessoryCompareOpen = false;
 
 const equipAbilityWeights = {
   physical: [/^Strength \+/, /^Piercing$|^Evade & Counter$|^Counterattack$/],
@@ -20,8 +22,11 @@ function ffxEquipScore(abilities, goal) {
   const [numeric, bonuses] = equipAbilityWeights[goal];
   const names = abilities.map(id => ffxData.abilities[id]).filter(Boolean);
   if (goal === "capture" && !names.includes("Capture")) return 0;
-  if (goal === "ap" && names.some(name => /^Overdrive (?:→|->) AP$/.test(name))) return 100 +
-    names.reduce((score, name) => score + (/^Triple /.test(name) ? 15 : /^Double /.test(name) ? 9 : 0), 0);
+  if (goal === "ap") {
+    const ap = names.includes("Triple AP") ? 3 : names.includes("Double AP") ? 2 : 1;
+    const overdrive = names.includes("Triple Overdrive") ? 3 : names.includes("Double Overdrive") ? 2 : 1;
+    return names.some(name => /^Overdrive (?:→|->) AP$/.test(name)) ? 100 + ap * overdrive : (ap - 1) * 20;
+  }
   return names.reduce((score, name) => score + (numeric.test(name) ? Number(name.match(/\+(\d+)/)?.[1] || 20) :
     bonuses.test(name) ? 16 : 0), 0);
 }
@@ -29,8 +34,10 @@ function ffxEquipScore(abilities, goal) {
 function ffxGearChange(member, type, goal) {
   const choices = member.gear.filter(piece => piece.type === type);
   const worn = choices.find(piece => piece.equipped);
-  const best = choices.reduce((selected, piece) =>
-    ffxEquipScore(piece.abilities, goal) > (selected ? ffxEquipScore(selected.abilities, goal) : 0) ? piece : selected, worn);
+  const eligible = goal === "capture" ? choices.filter(piece => ffxEquipScore(piece.abilities, goal) > 0) : choices;
+  const best = eligible.reduce((selected, piece) =>
+    ffxEquipScore(piece.abilities, goal) > (selected ? ffxEquipScore(selected.abilities, goal) : 0) ? piece : selected,
+    eligible.includes(worn) ? worn : null);
   if (!best || best === worn) return {worn, best, gained:[], lost:[]};
   const change = (from, to) => [...new Set(from?.abilities || [])].filter(id => id != null && !to?.abilities.includes(id))
     .map(id => ffxData.abilities[id]).filter(Boolean);
@@ -70,13 +77,12 @@ const accessoryWeights = {
 
 function x2AccessoryChange(loadout, member, slot, goal) {
   const worn = member.accessories[slot];
-  const other = member.accessories[1 - slot];
   const info = loadout.accessoryInfo;
   const stats = id => info?.[id]?.[2] || Array(10).fill(0);
   const gain = id => stats(id).reduce((score, value, index) => score + value * accessoryWeights[goal][index], 0);
   let best = worn;
   for (const [id, quantity] of loadout.accessories) {
-    if (quantity > 0 && id !== other && gain(id) > gain(best)) best = id;
+    if (quantity > 0 && gain(id) > gain(best)) best = id;
   }
   return {worn, best, delta:stats(best).map((value,index) => value - stats(worn)[index])};
 }
@@ -84,18 +90,21 @@ function x2AccessoryChange(loadout, member, slot, goal) {
 function showX2EquipCompare(loadout, member) {
   if (!loadout.accessoryInfo?.some(row => row?.[2])) return;
   const details = element("details", "grid-attributes");
+  details.open = x2AccessoryCompareOpen;
+  details.addEventListener("toggle", () => {
+    if (details.isConnected) x2AccessoryCompareOpen = details.open;
+  });
   details.append(element("summary", "", "Compare accessories"));
   const controls = element("div", "filters");
   const sheet = element("div", "sheet");
-  let goal = Object.hasOwn(accessoryWeights, equipGoal) ? equipGoal : "physical";
   controls.append(options("Accessory to replace", [[0,"Replace accessory 1"],[1,"Replace accessory 2"]],
     x2AccessorySlot, value => { x2AccessorySlot = Number(value); draw(); }),
     options("Optimize for", equipGoals.filter(([id]) => Object.hasOwn(accessoryWeights,id)),
-      goal, value => { goal = value; draw(); }));
+      x2AccessoryGoal, value => { x2AccessoryGoal = value; draw(); }));
   details.append(controls, sheet);
   panel.append(details);
   function draw() {
-    const {worn, best, delta} = x2AccessoryChange(loadout, member, x2AccessorySlot, goal);
+    const {worn, best, delta} = x2AccessoryChange(loadout, member, x2AccessorySlot, x2AccessoryGoal);
     const name = id => loadout.accessoryInfo[id]?.[0] || "Empty slot";
     const row = entry(best === worn ? (worn == null ? "No stat upgrade in stock" : "Keep " + name(worn)) :
       name(worn) + " → " + name(best));

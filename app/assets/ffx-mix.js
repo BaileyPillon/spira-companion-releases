@@ -115,6 +115,9 @@ function mixMissingIngredients(stock, [first, second]) {
   if (first === second) return stock[first] < 2 ? [first] : [];
   return [first,second].filter(id => stock[id] < 1);
 }
+function mixUnitsShort(stock,[first,second]) {
+  return first===second ? Math.max(0,2-stock[first]) : Number(!stock[first])+Number(!stock[second]);
+}
 
 let mixInStock = true;
 
@@ -300,7 +303,8 @@ function showMix(current, initialQuery) {
       disclosure.addEventListener("toggle", () => {
         if (!disclosure.open || disclosure.childElementCount > 1) return;
         const recipes = element("ul", "mix-recipes");
-        const ordered = [...mix.recipes].sort((a, b) => mixRecipeStock(stock, b) - mixRecipeStock(stock, a));
+        const ordered = [...mix.recipes].sort((a, b) => mixRecipeStock(stock, b) - mixRecipeStock(stock, a) ||
+          mixUnitsShort(stock,a)-mixUnitsShort(stock,b));
         for (const recipe of ordered) recipes.append(recipeRow(recipe));
         disclosure.append(recipes);
       });

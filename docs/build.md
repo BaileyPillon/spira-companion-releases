@@ -33,6 +33,8 @@ To sign with your own PKCS12 keystore, supply `-Keystore` and `-KeyAlias` and se
 
 For tested disc versions, emulator settings and the optional Steam bridge, see the [installation guide](../INSTALL.md). The [validation notes](../THOR-VALIDATION.md) distinguish device tests from capture replays.
 
+For the 1.39 gameplay fixes, run `python tools/test-review-fixes-ui.py` with the same Chrome and Playwright setup. The main browser suite also exercises the farming ledger, chapter bookmarks and the other planning tools.
+
 ## Package the source for a release
 
 From the tagged release, run `git archive --format=zip --prefix=SpiraCompanion-source/ -o dist/SpiraCompanion-source.zip HEAD`. Attach that ZIP to the GitHub release alongside the APK. The README’s source download points to the latest release asset with that filename.
