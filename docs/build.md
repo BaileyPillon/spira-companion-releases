@@ -35,6 +35,8 @@ For tested disc versions, emulator settings and the optional Steam bridge, see t
 
 For the 1.39 gameplay fixes, run `python tools/test-review-fixes-ui.py` with the same Chrome and Playwright setup. The main browser suite also exercises the farming ledger, chapter bookmarks and the other planning tools.
 
+For the boss forecasts, Mascot board and Besaid doors, run `python tools/test-boss-routes-ui.py`. It exercises all four tools at three viewport widths. Pass `--ffx-frame`, `--x2-frame` or `--screenshots <directory>` to replay saved frames or inspect the interface.
+
 ## Icon artwork
 
 The [Yuna portrait](images/spira-companion.png) is the source image for the GitHub README, Android launcher and companion header. From the repository root, run `pwsh -File tools/export-icon.ps1` with FFmpeg on your PATH to regenerate the bundled WebP images. Both Android launcher modes use the same crop. The themed version preserves the staff petals and facial features in the alpha channel so the launcher can tint them.

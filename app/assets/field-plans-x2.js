@@ -302,6 +302,12 @@ function drawLessons(current, view) {
     );
 }
 function drawX2FieldPlan(current, id, view) {
+  if (id === "mascot" || id === "ciphers") {
+    if (current.disc !== "SLUS-20672") view.list.append(entry("Load Final Fantasy X-2 USA on PS2"));
+    else if (id === "mascot") drawMascotBoard(current, view);
+    else drawBesaidCiphers(current, view);
+    return;
+  }
   if (!current.disc) {
     view.list.append(entry("Load an FFX-2 PS2 save to use this tool"));
     return;

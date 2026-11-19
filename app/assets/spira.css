@@ -517,3 +517,10 @@ code { color: var(--text); overflow-wrap: anywhere; }
 .notebook-controls input:focus-visible { outline: 2px solid var(--accent); }
 .notebook-results > .planner-config { padding-inline: 12px; }
 .notebook-results > h2 { margin-inline: 12px; }
+.cipher-readout .detail { font: 650 2rem/1.2 ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+.odds-bars, .power-bands { display: grid; gap: 6px; font-size: 13px; color: var(--muted); }
+.odds-bars { margin-block: 10px; max-width: 32rem; }
+.power-bands { padding: 12px; }
+.odds-bars label, .power-bands label { display: grid; grid-template-columns: 4.5rem minmax(1rem, 1fr) 3.3rem; gap: 8px; align-items: center; }
+.odds-bars progress, .power-bands progress { accent-color: var(--accent); width: 100%; height: 8px; }
+.odds-bars span, .power-bands span { text-align: right; color: var(--text); font-variant-numeric: tabular-nums; }

@@ -13,7 +13,7 @@ function fixture(extra={}) {
     "ffx-customization-data.js","ffx-customization.js","ffx-collections.js","ffx-prep.js","ffx-endgame.js",
     "ffx2-story-data.js","ffx2-scene-routes.js","ffx2-ap-data.js","ffx2.js","story.js","ffx-blitzball.js","ffx-blitz-team.js",
     "profiles.js","workspace.js","goal-planner.js","grid-sandbox.js","ffx2-scene-audit.js",
-    "battle-model-data.js","battle-model.js","butterfly-route-data.js","butterfly-coach.js","blitz-live.js","cloister-live.js"])
+    "battle-model-data.js","battle-model.js","boss-odds.js","ffx2-route-tools.js","butterfly-route-data.js","butterfly-coach.js","blitz-live.js","cloister-live.js"])
     runInContext(readFileSync(join(__dirname,"../app/assets",file),"utf8"),context,{filename:file});
   return {context,storage,run:code=>JSON.parse(runInContext(`JSON.stringify(${code})`,context)),exec:code=>runInContext(code,context)};
 }
@@ -190,4 +190,51 @@ test("Zanarkand resumes after the story puzzle when the save has reset the local
     return [cloisterNext(state,false,2725).pattern.count,cloisterNext(state,false,2775).title,
       cloisterNext(state,false,2795).title,cloisterNext({...state,puzzle:{...state.puzzle,phase:5}},false,3250).pattern.count];})()`),
     [5,"Save and enter the large chamber","Continue through the Dome",7]);
+});
+
+test("Dark Mindy thresholds distinguish 100 winning rolls from all 101, including Aim", () => {
+  const f = fixture();
+  const run = (luck, aim, goal, accuracy) => f.run(`bossHitPlan([0,0,0,0,0,${luck},0,${accuracy}],battleModelData.monsters[343].stats,${aim},${goal})`);
+  assert.equal(run(205, 0, 100, 255).rolls, 100);
+  assert.equal(run(205, 0, 100, 10).targetLuck, 206);
+  assert.equal(run(156, 5, 100, 10).rolls, 101);
+  assert.equal(run(156, 0, 100, 10).requiredAim, 5);
+  assert.equal(run(201, 0, 95, 255).targetLuck, 201);
+  assert.equal(f.run("bossHitPlan([], [], 5, 100)"), null);
+});
+
+test("Celestial power follows each owner's resource and rejects missing data", () => {
+  const f = fixture();
+  const factors = f.run(`Array.from({length:7},(_,id)=>celestialPower({id,hp:100,maxHp:100,mp:0,maxMp:100}).multiplier)`);
+  assert.deepEqual(factors, [1, 1/11, .5, 1, 1, 1/11, 1]);
+  assert.equal(f.run("celestialPower({id:2,hp:70,maxHp:100}).multiplier"), 1);
+  assert.equal(f.run("celestialPower({id:2,hp:1,maxHp:1000}).multiplier"), (130 - .1)/60);
+  assert.equal(f.run("celestialPower({id:1,hp:100,maxHp:100})"), null);
+});
+
+test("Celestial strikes bypass Defense, retain Armored penalties, and leave spells alone", () => {
+  const f = fixture();
+  const [light, heavy, armored, broken, ordinary, magicCelestial, magicOrdinary] = f.run(`(() => {
+    const member = {id:0, hp:100, maxHp:100, mp:50, maxMp:50, battleAttributes:[42,20,35,16,22,20,8,17], gear:[{type:0,equipped:true,celestial:true,power:16,abilities:[]}]};
+    const target = {battleId:20,id:Number(Object.keys(ffxData.enemies).find(k=>ffxData.enemies[k].armored && !battleModelData.monsters[k]?.immune && !battleModelData.monsters[k]?.physicalImmune)), hp:999,maxHp:999, battleAttributes:[20,220,20,20,10,1,0,0]};
+    const attack = battleModelData.actions[0x3000], spell = Object.values(battleModelData.actions).find(a => a.name==="Flare");
+    const roll = (a, u, t) => battleSingleDamage(a,u,t,16);
+    const plain = {...target,battleId:0};
+    const regular = {...member,gear:[{...member.gear[0],celestial:false}]};
+    return [roll(attack,member,{...plain,battleAttributes:Array(8).fill(2)}), roll(attack,member,plain),
+      roll(attack,member,target),roll(attack,member,{...target,statusBits:1<<6}),roll(attack,regular,plain),
+      roll(spell,member,plain),roll(spell,regular,plain)];
+  })()`);
+  assert.equal(light,heavy);
+  assert.equal(armored,Math.floor(heavy/3));
+  assert.equal(broken,heavy);
+  assert.ok(heavy > ordinary);
+  assert.equal(magicCelestial,magicOrdinary);
+});
+
+test("Besaid's notebooks distinguish an unseen digit from zero and reject malformed backups", () => {
+  const f = fixture();
+  assert.deepEqual(f.run('cipherSlots([{digit:"0",unsure:true},{digit:"7"},{digit:0},{digit:"12"}])'),
+    [{digit:"0",unsure:true},{digit:"7",unsure:false},{digit:"",unsure:false},{digit:"",unsure:false}]);
+  assert.equal(f.run("new Set(mascotRegions.map(r=>r[0])).size"),15);
 });

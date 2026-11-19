@@ -76,7 +76,7 @@ function validFrame(next) {
 
 function choose(nextTab, initialQuery = null, bribeTarget = null, itemSources = false) {
   const plan = typeof fieldPlanFor === "function" && fieldPlanFor(nextTab);
-  if (plan && tab !== nextTab) fieldPlanOrigin = tab === plan.parent ? tab : "workspace";
+  if (plan && tab !== nextTab) fieldPlanOrigin = [...nav].some(button => button.dataset.tab === tab && !button.hidden) ? tab : "workspace";
   if (typeof coachManualNavigation === "function") coachManualNavigation();
   if (nextTab === "missables") focusedMissable = initialQuery;
   returningToMix = nextTab === "bestiary" && tab === "mix" && initialQuery != null;
@@ -546,6 +546,8 @@ function render() {
     if (!current.battle && current.game === "x2" && current.chapter) {
       const tools = element("div", "filters");
       tools.append(action("Check Chapter " + current.chapter, () => openX2ChapterChecklist()));
+      if (current.disc === "SLUS-20672" && /^Besaid\b/i.test(roomName(current)))
+        tools.append(action("Besaid cipher notebook", () => choose("plan-ciphers")));
       if (oversoul) tools.append(action("Track Oversouls", () => openX2FieldGuide("oversoul")));
       if (loadout && x2DressphereHunt(current).some(row => ["Chapter deadline","Prepare now"].includes(row.state))) {
         tools.append(action("Check dressphere deadlines", openX2DressphereHunt));

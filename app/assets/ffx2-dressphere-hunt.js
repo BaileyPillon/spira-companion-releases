@@ -78,6 +78,7 @@ function showX2DressphereHunt(current) {
       if (!row.quantity) {
         item.append(element("p", "", row.steps));
         if (row.id === 13) item.append(action("Sphere Break solver", () => openX2Challenge("sphere-break", current)));
+        if (row.id === 14) item.append(action("Mascot episode board", () => choose("plan-mascot")));
         if (row.id === 3 && current.calmLands) item.append(action("Chocobo Ranch guide", () => openX2Challenge("ranch", current)));
       }
       sheet.append(item);

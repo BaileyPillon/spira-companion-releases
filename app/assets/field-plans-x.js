@@ -311,6 +311,12 @@ function drawReserves(current, view) {
     );
 }
 function drawXFieldPlan(current, id, view) {
+  if (id === "accuracy" || id === "celestial") {
+    if (current.disc !== "SLPS-25088") view.list.append(entry("Load Final Fantasy X International on PS2"));
+    else if (id === "accuracy") drawBossOdds(current, view);
+    else drawCelestialPower(current, view);
+    return;
+  }
   if (!current.disc || !current.grid) {
     view.list.append(entry("Load an FFX International PS2 save to use this tool"));
     return;

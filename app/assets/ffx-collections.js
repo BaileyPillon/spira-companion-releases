@@ -204,6 +204,10 @@ function showCollections(current) {
       const row = entry(record.name, [record.place,state].filter(Boolean).join(" · "),
         record.parts || (record.statue && record.done) ? "" : record.detail);
       row.classList.toggle("completed", record.done);
+      if (collectionGroup === "celestials") row.append(action("Check weapon power", () => {
+        fieldChoices.celestialMember = ffxCelestials.findIndex(([name]) => name === record.name);
+        choose("plan-celestial");
+      }));
       if (record.statue) row.append(element("p", "field-note", "Baaj statue · " + record.statue));
       if (collectionGroup === "aeons" && record.name === "Anima") {
         row.append(action("Anima temple treasures", () => choose("collections", "anima")));

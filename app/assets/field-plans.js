@@ -2,6 +2,10 @@
 
 // Secondary tools share the existing Workspace navigation and profile storage.
 const fieldPlans = [
+  ["accuracy", "Boss hit planner", "prep", "x", "Check your party’s normal Attack against a Dark Aeon or Penance and see how much Luck or Aim closes the gap."],
+  ["mascot", "Mascot episode board", "chapter-checklist", "x2", "Track the Chapter 5 result at each destination and compare it with scenes in your save."],
+  ["celestial", "Celestial weapon power", "equip", "x", "See how each character’s current HP or MP changes physical weapon damage."],
+  ["ciphers", "Besaid cipher notebook", "challenges", "x2", "Find and record the four digits for each of Besaid’s two cave doors."],
   [
     "circuit",
     "Capture circuit",
@@ -80,6 +84,10 @@ function fieldPlanFor(tabName) {
 }
 function fieldPlanSignature(id, current) {
   const base = [current.game, current.disc, current.crc, !!current.grid, reconnecting, !!current.paused];
+  if (id === "accuracy") return [...base, current.party?.map(m => [m.id, m.attributes]), current.enemies?.map(e => [e.id, e.hp > 0])];
+  if (id === "celestial") return [...base, current.battle, current.party?.map(m => [m.id, m.active, m.hp, m.maxHp, m.mp, m.maxMp, m.gear?.filter(g => g.celestial)])];
+  if (id === "mascot") return [...base, current.chapter, current.storyFlags, current.loadout?.dresspheres, current.calmLands?.argent, current.calmLands?.openAir];
+  if (id === "ciphers") return [...base, current.chapter, current.room, current.loadout?.grids?.includes(25)];
   const values = {
     circuit: [current.arena, current.room],
     errands: [current.chapter, current.storyFlags],

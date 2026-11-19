@@ -16,7 +16,11 @@ const catalog = {
   x2: {
     title: "Final Fantasy X-2",
     party: ["Yuna", "Rikku", "Paine"],
-    rooms: {179:"Floating Ruins · Spire", 184:"Luca · Stadium Passage", 185:"Luca · Docks", 206:"Celsius · Deck", 210:"Floating Ruins", 221:"Road to the Farplane",
+    rooms: {120:"Besaid · Beach", 121:"Besaid · Crossroads", 122:"Besaid · Valley", 123:"Besaid · Ancient Road",
+      124:"Besaid · Waterfall Way", 125:"Besaid · Promontory", 126:"Besaid · Village Slope", 127:"Besaid Village",
+      128:"Besaid Village · Night", 133:"Besaid · Shop", 135:"Besaid · Great Hall", 137:"Besaid · Monks’ Chamber",
+      190:"Besaid · Cave", 192:"Besaid · Waterfall Way", 253:"Besaid · Port",
+      179:"Floating Ruins · Spire", 184:"Luca · Stadium Passage", 185:"Luca · Docks", 206:"Celsius · Deck", 210:"Floating Ruins", 221:"Road to the Farplane",
       259:"Celsius · Corridor", 311:"Luca · Stadium"},
     recovery: ["Potion", "Hi-Potion", "X-Potion", "Mega Potion", "Ether", "Turbo Ether", "Phoenix Down",
       "Mega Phoenix", "Elixir", "Megalixir", "Antidote", "Soft", "Eye Drops", "Echo Screen", "Holy Water", "Remedy"],

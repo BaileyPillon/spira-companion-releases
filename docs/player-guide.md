@@ -4,6 +4,8 @@
 
 ## Final Fantasy X
 
+**Before grinding Luck**, open **Boss Prep → Boss hit planner**. Pick the boss or one of Penance’s arms, then choose your hit goal and Aim stacks. Each party member gets a normal Attack forecast and the additional Luck needed. **Equip → Celestial weapon power** shows the current weapon multiplier. For example, healing Tidus strengthens Caladbolg, while healing Auron weakens Masamune. In battle, **Battle comparison** estimates damage on your selected target.
+
 **Plan a farming session.** In **Arena → Capture circuit**, choose a catch goal to see up to three complementary hunting spots. In **Equip → Customization shopping list**, select an ability and the number of pieces you want. For example, three Auto-Haste pieces need 240 Chocobo Wings in total. Craft in batches as you collect them. **Bestiary → Bribe shopping comparison** prices the next inventory target across eligible fiends. **Items → Farming ledger** records your starting inventory and gil so you can see the net change.
 
 In **Mix → Mix ingredient reserves**, choose an ingredient and how many to keep. Then select a Mix to find combinations that leave that reserve intact.
@@ -30,6 +32,10 @@ The original HTML export is 40,660,758 bytes. Its SHA-256 checksum is `5cf7b6425
 | You’re playing Blitzball or chasing a sigil | **Blitzball** covers rosters, contracts, Techcopy, Wakka’s prizes and live matches. **Challenges** tracks Catcher Chocobo, Butterfly Catcher, lightning records and the current Cactuar clue. Start a fresh lightning streak at zero to use the estimate. |
 
 ## Final Fantasy X-2
+
+**Hunting Mascot?** Open **Chapter Checklist → Mascot episode board**. After a regional ending, copy the result from the Celsius destination map. Filter to **Episode Concluded** to see the regions you need to revisit when planning your next run. Use a separate companion profile for a new run. The scene evidence and inventory checks follow the loaded save.
+
+**At Besaid**, open **Challenges → Besaid cipher notebook** or use the shortcut in **Status**. Choose the entrance or the inner Search Sphere door, enter each digit beside its landmark, and mark a hard-to-read digit for another look. The notebook keeps both four-digit codes in your profile.
 
 **Check what changed between saves.** Open **Chapter Checklist → Compare chapter saves** and bookmark the live game before advancing or loading an older save. The comparison lists gained and absent event flags by interaction. For a trip through the current chapter, **Chapter itinerary** groups unresolved checks by destination and faction. The percentage tools use the USA disc’s mapped event flags.
 

@@ -20,6 +20,23 @@ function battleActionElements(action, abilities) {
   }
   return [...elements];
 }
+// Count winning values of the ordinary hit roll (0 through 100, strict comparison).
+function battleHitRolls(action, accuracy, luck, evasion, foeLuck, aim = 0, reflex = 0, luckBuff = 0, jinx = 0, dark = false) {
+  const factor = action.hitFormula.includes("2.5") ? 2.5 : action.hitFormula.includes("1.5") ? 1.5 :
+    action.hitFormula.includes("0.5") ? 0.5 : 1;
+  const index = Math.floor(battleHighMultiply(Math.floor(accuracy * factor) * 2, 0x66666667) / 2) - evasion + 10;
+  let base = action.hitTable ? [25,30,30,40,40,50,60,80,100][Math.max(0, Math.min(8, index))] : action.accuracy - evasion;
+  if (action.dark && dark) base = Math.floor(battleHighMultiply(base, 0x66666667) / 4);
+  return Math.max(0, Math.min(101, base + Math.max(1, luck) - Math.max(1, foeLuck) + 10 * (aim - reflex) + luckBuff + jinx));
+}
+function celestialPower(member) {
+  if (!Number.isInteger(member.id) || member.id < 0 || member.id > 6) return null;
+  const magic = member.id === 1 || member.id === 5;
+  const current = magic ? member.mp : member.hp, maximum = magic ? member.maxMp : member.maxHp;
+  if (!Number.isInteger(current) || !Number.isInteger(maximum) || maximum <= 0 || current < 0) return null;
+  const ratio = Math.min(1, current / maximum);
+  return {pool:magic ? "MP" : "HP", current, maximum, multiplier:member.id === 2 ? (130 - 100 * ratio) / 60 : (10 + 100 * ratio) / 110};
+}
 function battleSingleDamage(action,user,target,roll,critical=false) {
   const status=actor=>new Set(statusEffects("x",actor).split(" · "));
   const us=status(user),ts=status(target),ua=user.battleAttributes,ta=target.battleAttributes;
@@ -37,7 +54,8 @@ function battleSingleDamage(action,user,target,roll,critical=false) {
   else if(f!=="No Damage"){
     const physical=f.includes("Strength"),healing=f==="Healing";
     const offensive=ua[physical?0:2]+(user.boosts?.[physical?0:2]||0);
-    const defense=healing||f.includes("Piercing")||ts.has(physical?"Armor Break":"Mental Break")?0:Math.max(1,ta[physical?1:3]);
+    const celestial = physical && action.weapon && weapon?.celestial;
+    const defense=healing||celestial||f.includes("Piercing")||ts.has(physical?"Armor Break":"Mental Break")?0:Math.max(1,ta[physical?1:3]);
     let power;
     if(physical||f==="Special Magic")power=Math.floor(offensive**3/32)+30;
     else if(healing)power=Math.floor((offensive+base)/2)*base;
@@ -78,6 +96,8 @@ function battleSingleDamage(action,user,target,roll,critical=false) {
     damage+=Math.floor(damage*boost/100);damage-=Math.floor(damage*[...targetAuto].reduce((n,id)=>n+(defense[id]||0),0)/100);
   }
   if(action.armored&&ffxData.enemies[target.id]?.armored&&target.battleId>=20&&!auto.has("Piercing")&&!ts.has("Armor Break"))damage=Math.floor(damage/3);
+  if (action.weapon && action.formula.includes("Strength") && weapon?.celestial)
+    damage = Math.trunc(damage * celestialPower(user).multiplier);
   if(action.drains){if(us.has("Zombie"))damage*=-1;if(ts.has("Zombie"))damage*=-1;}
   damage=Math.min(damage,action.neverLimit?9999:action.alwaysLimit||auto.has("Break Damage Limit")?99999:9999);
   if(action.heals&&!ts.has("Zombie"))damage*=-1;
@@ -91,7 +111,8 @@ function compareBattleAction(current,user,target,id) {
   const issues=[];
   if(!user.battleAttributes||!target.battleAttributes)issues.push("Live battle attributes are unavailable.");
   if(action.weapon&&(!weapon||!Number.isInteger(weapon.power)))issues.push("Weapon power is unavailable.");
-  if(action.weapon&&weapon?.celestial)issues.push("Celestial weapon scaling is not modeled.");
+  if(action.weapon && action.formula.includes("Strength") && weapon?.celestial && !celestialPower(user))
+    issues.push("Current HP or MP for this Celestial weapon is unavailable.");
   if(action.reflect&&ts.has("Reflect"))issues.push("Reflected target selection is not modeled.");
   const nulEffects={Fire:"NulBlaze",Ice:"NulFrost",Thunder:"NulShock",Water:"NulTide"};
   const requiredNuls=battleActionElements(action,autos).map(element=>nulEffects[element]).filter(Boolean);
@@ -109,10 +130,8 @@ function compareBattleAction(current,user,target,id) {
   let hit=hits;
   if(hit===null&&user.battleAttributes&&target.battleAttributes){
     const ua=user.battleAttributes,ta=target.battleAttributes;
-    let accuracy=ua[7];if(action.hitFormula.includes("2.5"))accuracy=Math.floor(accuracy*2.5);else if(action.hitFormula.includes("1.5"))accuracy=Math.floor(accuracy*1.5);else if(action.hitFormula.includes("0.5"))accuracy=Math.floor(accuracy/2);
-    let base=action.hitTable?[25,30,30,40,40,50,60,80,100][Math.min(8,Math.max(0,Math.floor(battleHighMultiply(accuracy*2,0x66666667)/2)-ta[6]+10))]:action.accuracy-ta[6];
-    if(action.dark&&us.has("Darkness"))base=Math.floor(battleHighMultiply(base,0x66666667)/4);
-    hit=Math.max(0,Math.min(101,base+Math.max(1,ua[5])-Math.max(1,ta[5])+(user.boosts?.[4]||0)+(target.boosts?.[5]||0)+10*((user.boosts?.[1]||0)-(target.boosts?.[3]||0))))/101*100;
+    hit = 100 * battleHitRolls(action, ua[7], ua[5], ta[6], ta[5], user.boosts?.[1], target.boosts?.[3],
+      user.boosts?.[4], target.boosts?.[5], us.has("Darkness")) / 101;
   }
   const ref=target.battleId>=20?battleModelData.monsters[target.id]:null;
   const statuses=Object.entries(action.statuses).map(([name,chance])=>{
