@@ -218,6 +218,7 @@ function showX2Bestiary(current) {
   function draw() {
     const term = x2BestiaryQuery.trim().toLowerCase();
     sheet.replaceChildren();
+    const matches = [];
     for (const record of entries) {
       const places = x2BestiaryPlaces(record);
       if (x2BestiaryArea && !places.includes(x2BestiaryArea)) continue;
@@ -225,6 +226,11 @@ function showX2Bestiary(current) {
         [...new Set(x2LootNames(form).filter(name => name.toLowerCase().includes(term)))] : []]));
       if (term && ![...lootMatches.values()].some(names => names.length) &&
           ![record.title,...places].some(text => text.toLowerCase().includes(term))) continue;
+      matches.push({record,places,lootMatches});
+    }
+    const filter = JSON.stringify([term,x2BestiaryArea,target?.name]);
+    const page = pageFiends("x2",filter,matches,m=>m.record.title,draw,sheet);
+    for (const {record,places,lootMatches} of page) {
       const known = x2OversoulSeen(current.oversoul, record.bit) || x2FieldChecks.has(`oversoul:${record.title}`);
       const row = entry(record.title, known ? "Oversoul seen" : "", record.locations.length ?
         "Recorded at " + record.locations.join(" · ") : places.join(" · "));

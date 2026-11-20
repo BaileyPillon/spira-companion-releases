@@ -10,7 +10,15 @@ Open **Display** in the top bar. **Match the game** changes the menu when you sw
 
 Open **Glance** for the active party, current target and FFX turn order, or the next objective in the field. **Shade screen** covers the companion in black. Tap anywhere or press a key to wake it. Automatic shading applies only in Glance and defaults to manual. Use **Exit Glance** to return to your previous view. On Map, Sphere Grid, Grid sandbox, Cloister guide, Blitzball or Challenges, **Focus** hides the sidebar until you choose **Exit focus**.
 
+**When you lose your place**, tap **Page index**. Type a section, character, fiend or control shown on this page. Tap the result to go there. **Related tools** stays within the current game. The supported offline walkthrough has its own searchable destinations. In full screen, choose **All tools → Page index**. Use **Back** to return after a side trip.
+
+**Leave a note for your next session.** With a game open, go to **Journal**, enter what you want to do next and choose **Save checkpoint**. Return to that profile with either game closed to read the note and the last observed route. While playing, you can also see the current objective and, in FFX, resume a tracked hunt.
+
 ## Final Fantasy X
+
+**Which area can I finish next?** Open **Monster Arena → Capture atlas**. Choose **5 of each** to see the remaining catches for that goal. Tap a region, then a fiend for its dossier or **Hunt** for its hunting spots. Use **Back** to return to your region. In either game’s Bestiary, search first or select a range of names.
+
+**Should I switch goalkeepers?** Open **Blitzball → Team Builder**, choose the player pool and level, then use **Compare options** at goalkeeper. Try the candidate in your planned lineup. **Let planner choose** releases that position again.
 
 **What did this node used to be?** Open **Sphere Grid** and tap it. The inspector shows the default node for this layout, the contents in your save and the characters who used it. Expand **Read the symbols** for the seven shapes. **Activate from anywhere** lists eligible remote spheres for a selected character who still needs the node.
 
@@ -48,6 +56,8 @@ The original HTML export is 40,660,758 bytes. Its SHA-256 checksum is `5cf7b6425
 | You’re playing Blitzball or chasing a sigil | **Blitzball** covers rosters, contracts, Techcopy, Wakka’s prizes and live matches. **Challenges** tracks Catcher Chocobo, Butterfly Catcher, lightning records and the current Cactuar clue. Start a fresh lightning streak at zero to use the estimate. |
 
 ## Final Fantasy X-2
+
+**Who still needs AP?** Open **Equipment → Party dressphere mastery**. Each owned, supported standard job has one cell for Yuna, Rikku and Paine. Choose **Unfinished jobs only** to narrow the board. Tap a cell for the character’s abilities and AP costs. Trainer and Mascot use a separate ability list for each character. The totals count learnable AP abilities.
 
 **Test a gate bonus.** Open **Equipment → Garment Grid gates → Rehearse spherechanges**. Tap a connecting slot or the named move beside the diagram. Watch the gate and bonus readout as you move, then **Undo step** or **Return to route**. Starting from **Current** in battle includes any gate crossings the game reports.
 

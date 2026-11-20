@@ -149,6 +149,7 @@ function showBlitzTeam(blitz) {
     content.append(element("p", "field-guide-count", `${blitzTeamLevel ? "Preview" : "Suggested lineup"} · ${counts.map(([label,n]) => `${n} ${label}`).join(" · ")}`));
     if (recruits.length) content.append(element("p", "field-note", "Check story access before traveling. A signed rival must leave their team before you can recruit them."));
     if (!blitz?.players) content.append(element("p", "field-note", "Load your Blitzball roster to see contracts and learned techniques."));
+    const workbench = element("section","position-workbench");
     const lineup = element("ol", "blitz-lineup");
     lineup.setAttribute("aria-label", "Suggested starting six");
     const choices = element("details", "arena-pending");
@@ -163,6 +164,15 @@ function showBlitzTeam(blitz) {
         element("small", "blitz-availability", player.player?.[0] === 5 ? "On your roster" : blitzCandidateContract(player)),
         element("span", "blitz-stats", blitzStatSummary(player, blitzSlots[slot])),
         element("small", "", blitzReferenceLabel(player)));
+      const edit = action("Compare options",() => {
+        blitzEditingSlot=slot; blitzChallenger=null;
+        openPositionBoard(workbench,slot,team,candidates,effectiveLocks,draw);
+        for (const b of lineup.querySelectorAll("button")) b.setAttribute("aria-pressed",String(b===edit));
+        workbench.querySelector("h3").focus();
+      });
+      edit.setAttribute("aria-label","Compare options at " + blitzSlotNames[slot].toLowerCase());
+      edit.setAttribute("aria-pressed",String(blitzEditingSlot===slot));
+      row.append(edit);
       const select = blitzLabeledSelect(`Keep at ${blitzSlotNames[slot].toLowerCase()}`,
         [["auto","Auto"], ...(blitzTeamLocks[slot] != null && effectiveLocks[slot] == null ?
           [[blitzTeamLocks[slot],`${blitzPlayers[blitzTeamLocks[slot]]} · unavailable in pool`]] : []),
@@ -176,7 +186,8 @@ function showBlitzTeam(blitz) {
       positionControls.append(select);
       lineup.append(row);
     }
-    content.append(lineup);
+    openPositionBoard(workbench,blitzEditingSlot,team,candidates,effectiveLocks,draw);
+    content.append(lineup,workbench);
     choices.append(positionControls);
     if (blitzTeamLocks.some(id => id !== null)) choices.append(action("Clear position choices", () => { blitzTeamLocks.fill(null); draw(); }));
     content.append(choices);

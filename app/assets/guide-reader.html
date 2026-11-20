@@ -103,6 +103,20 @@
   }
   function ready() {
     jump("contents");
+    const sections = new Map();
+    for (const link of document.querySelectorAll('a[href^="#page-"]')) {
+      const id = link.getAttribute("href").slice(1);
+      const name = link.textContent.replace(/\s+/g," ").trim();
+      if (name && !sections.has(id) && document.getElementById(id)) sections.set(id,name.slice(0,200));
+    }
+    const titleCounts = new Map();
+    for (const name of sections.values()) titleCounts.set(name,(titleCounts.get(name) || 0) + 1);
+    const rows = [...sections].slice(0,2500).map(([id,name]) => {
+      if (titleCounts.get(name) < 2) return [id,name];
+      const chapter = document.getElementById(id).closest("article")?.querySelector("h1")?.textContent.trim();
+      return [id,(name + " · " + (chapter && chapter !== name ? chapter : id.replace(/^page-/,"Section "))).slice(0,200)];
+    });
+    window.parent.postMessage({kind:"index",rows}, "*");
     report("ready");
   }
   if (document.readyState === "complete") ready();

@@ -4,7 +4,7 @@ const panel = document.querySelector("#panel");
 const connection = document.querySelector("#connection");
 const nav = [...document.querySelectorAll("nav [data-tab]")];
 const number = new Intl.NumberFormat();
-const clock = new Intl.DateTimeFormat(undefined, {hour:"numeric", minute:"2-digit"});
+
 const states = {
   waiting: "Waiting", title: "At title screen", reading: "Connecting",
   unsupported: "Unsupported disc", stale: "Feed stopped", live: "Live", paused: "Paused", sample: "Sample data",
@@ -157,6 +157,7 @@ function update(raw, granted) {
       tab = "status";
       panel.scrollTop = 0;
     }
+    if (typeof observeJourney === "function") observeJourney(frame);
     const recent = visits[0];
     if (!recent || recent.game !== frame.game || recent.room !== frame.room) {
       visits = [{game:frame.game, room:frame.room, timestamp:frame.timestamp}, ...visits].slice(0, 24);
@@ -206,6 +207,11 @@ function setup() {
     "Open this companion on the bottom screen. It follows the running disc automatically."
   ]) steps.append(element("li", "", step));
   panel.append(steps);
+  const focusHelp=element("details","grid-attributes");
+  focusHelp.append(element("summary","","The controller is on the wrong screen"),
+    element("p","","Tap the running game on the top display, then try a direction on the D-pad. Use touch on the lower display for the companion."),
+    element("p","field-note","If the top game pauses as soon as you touch Spira, check the emulator’s pause-on-focus-loss setting. A live connection and controller focus are separate."));
+  panel.append(focusHelp);
   if (folder) panel.append(element("p", "", "Steam bridge folder connected."));
   if (error) panel.append(element("p", "error", error));
   const controls = element("div", "controls");
@@ -331,21 +337,6 @@ function supplies(current) {
   draw();
 }
 
-function journal() {
-  heading("Recent areas", "Area changes observed while this app is open");
-  if (!visits.length) {
-    panel.append(element("p", "empty", "Start either game to see your route here."));
-    return;
-  }
-  const list = element("div", "sheet");
-  for (const visit of visits) {
-    const row = element("div", "visit");
-    row.append(element("span", "", roomName(visit) + " · " + (visit.game === "x" ? "FFX" : "FFX-2")),
-      element("time", "", clock.format(new Date(visit.timestamp))));
-    list.append(row);
-  }
-  panel.append(element("h2", "", "This session"), list);
-}
 
 function waiting() {
   const title = frame && catalog[frame.game]?.title;
@@ -399,6 +390,7 @@ function render() {
     loadout?.dresspheres, !!loadout?.gridInfo];
   if (tab === "setup") displayed = [frame?.disc, frame?.crc];
   if (tab === "profiles") displayed = null;
+  if (tab === "journal") displayed = [data.game,data.disc,data.room,data.story,data.chapter,data.battles,data.gil,data.battle];
   if (tab === "battle-lab") displayed = [reconnecting,data.disc,data.battle,data.paused,data.party,data.enemies,data.items];
   if (tab === "trials") displayed = [data.room,data.story,data.cloister,data.progress?.trials,data.paused,reconnecting];
   if (tab === "workspace") displayed = [data.game,data.disc,!!data.grid,!!data.progress,!!data.oversoul,!!data.chapter,
@@ -501,7 +493,7 @@ function render() {
   else if (tab === "battle-lab") showBattleComparison(current);
   else if (tab === "trials") showCloister(current);
   else if (tab === "cheats" && window.SpiraCheats) window.SpiraCheats.show(current, visibleState);
-  else if (tab === "journal") journal();
+  else if (tab === "journal") showJourneyBook(current);
   else if (!current) waiting();
   else if (tab === "supplies") supplies(current);
   else if (tab === "mix" && hasMix) {

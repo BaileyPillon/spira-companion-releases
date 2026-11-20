@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="spira.css">
 <link rel="stylesheet" href="display.css">
 <link rel="stylesheet" href="visual-tools.css">
+<link rel="stylesheet" href="field-index.css">
 <script src="catalog.js" defer></script>
 <script src="ffx-data.js" defer></script>
 <script src="ffx-mix-data.js" defer></script>
@@ -81,6 +82,11 @@
 <script src="butterfly-coach.js" defer></script>
 <script src="display.js" defer></script>
 <script src="glance.js" defer></script>
+<script src="capture-atlas.js" defer></script>
+<script src="fiend-index.js" defer></script>
+<script src="field-index.js" defer></script>
+<script src="journey-journal.js" defer></script>
+<script src="training-boards.js" defer></script>
 <script src="spira.js" defer></script>
 </head>
 <body>
@@ -95,11 +101,14 @@
 <div id="glance-toolbar" hidden>
   <button id="glance-exit">Exit Glance</button>
   <span id="glance-connection" class="connection" role="status"></span>
+  <button id="glance-index" aria-haspopup="dialog">Index</button>
   <button id="glance-dim">Shade screen</button>
 </div>
 <div class="layout">
   <nav aria-label="Companion views">
     <button id="tool-library" aria-haspopup="dialog">All tools</button>
+    <button id="section-index" aria-haspopup="dialog">Page index</button>
+    <button id="section-back" hidden>Back</button>
     <button data-tab="status" aria-current="page">Status</button>
     <button data-tab="glance">Glance</button>
     <button data-tab="workspace">Workspace</button>

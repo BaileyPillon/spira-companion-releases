@@ -15,12 +15,17 @@ function x2JobName(info, id) {
   return info?.[id - 0x5000]?.[0] || catalog.x2.jobs[id] || "Unknown dressphere";
 }
 
-function x2AbilityProgress(encoded, job) {
+function x2BaseJob(id) {
+  return [12,12,14,14][id-26] ?? id;
+}
+
+function x2AbilityProgress(encoded, job, member = 0) {
   if (typeof encoded !== "string") return [];
   let bytes;
   try { bytes = atob(encoded); } catch { return []; }
   if (bytes.length !== 0x6a0) return [];
-  return (x2DressphereAbilities[job] || []).map(([name,cost,offset]) => {
+  const variant = job === 12 ? [12,26,27][member] : job === 14 ? [14,28,29][member] : job;
+  return (x2DressphereAbilities[variant] || x2VariantAbilities[variant] || []).map(([name,cost,offset]) => {
     const ap = bytes.charCodeAt(offset) | bytes.charCodeAt(offset + 1) << 8;
     return {name, cost, ap:Math.min(ap,cost), done:ap >= cost};
   });
@@ -28,8 +33,8 @@ function x2AbilityProgress(encoded, job) {
 
 function showX2DressphereAp(current, member) {
   const {loadout} = current;
-  const jobs = loadout.dresspheres.map(([id]) => id - 0x5000).filter(id => x2DressphereAbilities[id]);
-  const equipped = member.dressphere - 0x5000;
+  const jobs = [...new Set(loadout.dresspheres.filter(([,qty])=>qty>0).map(([id])=>x2BaseJob(id-0x5000)).filter(id=>x2DressphereAbilities[id]))];
+  const equipped = x2BaseJob(member.dressphere - 0x5000);
   if (x2DressphereAbilities[equipped] && !jobs.includes(equipped)) jobs.unshift(equipped);
   if (!jobs.length) return;
   const details = element("details", "grid-attributes");
@@ -45,7 +50,11 @@ function showX2DressphereAp(current, member) {
   panel.append(details);
 
   function draw() {
-    const abilities = x2AbilityProgress(current.dressphereAp[member.id], Number(select.value));
+    const abilities = x2AbilityProgress(current.dressphereAp[member.id], Number(select.value), member.id);
+    if (!abilities.length) {
+      sheet.replaceChildren(entry("AP reading unavailable","Load this character’s AP data to see learned abilities."));
+      return;
+    }
     const learned = abilities.filter(ability => ability.done).length;
     sheet.replaceChildren(entry("Mastery", `${learned}/${abilities.length} AP abilities learned`,
       "Innate commands and special dresspheres are outside this count."));
@@ -78,6 +87,7 @@ function showX2Equipment(current) {
     roster.append(button);
   }
   panel.append(roster);
+  if (current.dressphereAp) showMasteryBoard(current);
 
   const worn = element("dl", "sheet loadout-fields");
   const grid = loadout.gridInfo?.[member.grid];

@@ -10,7 +10,7 @@ function detailKey(details) {
   return details.dataset.detailKey || details.querySelector("summary")?.textContent;
 }
 function rememberExpansionUi() {
-  if (panel.dataset.page !== tab || !(tab.startsWith("plan-") || ["workspace","planner","grid","grid-lab","mix","equip","battle-lab","trials","blitzball","chapter-checklist"].includes(tab))) return null;
+  if (panel.dataset.page !== tab || !(tab.startsWith("plan-") || ["workspace","planner","grid","grid-lab","mix","equip","battle-lab","trials","blitzball","chapter-checklist","arena","journal"].includes(tab))) return null;
   const focused = panel.contains(document.activeElement) ? document.activeElement : null;
   return {
     scroll: panel.scrollTop,
@@ -62,7 +62,7 @@ const workspaceTools = [
   ["missables","Missables","Story deadlines and collectibles","x"],
   ["collections","Collections","Primers, Celestials and Aeons","x"],
   ["map","Map","Field map, player position and exits"],
-  ["journal","Journal","Recently visited areas"],
+  ["journal","Journal","Journey recap, observed route and personal checkpoint"],
   ["setup","Setup","Connections and companion preferences"],
   ["prep","Boss Prep","Armor, materials and AP farming","x"],
   ["blitzball","Blitzball","Team builder, rewards and techniques","x"],

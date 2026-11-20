@@ -248,13 +248,13 @@ function drawSweep(current, view) {
 }
 function apShortlist(current, memberFilter) {
   const jobs = new Set(
-    (current.loadout?.dresspheres || []).filter(([, qty]) => qty > 0).map(([id]) => id - 0x5000)
+    (current.loadout?.dresspheres || []).filter(([, qty]) => qty > 0).map(([id]) => x2BaseJob(id - 0x5000))
   );
   const rows = [];
   for (const member of [0, 1, 2]) {
     if (memberFilter !== "all" && Number(memberFilter) !== member) continue;
     for (const job of jobs)
-      for (const a of x2AbilityProgress(current.dressphereAp?.[member], job)) {
+      for (const a of x2AbilityProgress(current.dressphereAp?.[member], job, member)) {
         if (a.ap > 0 && !a.done) rows.push({ ...a, member, job, remaining: a.cost - a.ap });
       }
   }

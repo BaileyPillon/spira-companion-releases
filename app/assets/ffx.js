@@ -921,7 +921,9 @@ function showBestiary(current) {
       })
       .sort(([a, first], [b, second]) => Number(fights.has(Number(b))) - Number(fights.has(Number(a))) ||
         first.name.localeCompare(second.name));
-    for (const [id, foe] of entries) {
+    const filter = JSON.stringify([text,bestiaryArea,bestiarySource,bestiaryBribeTarget]);
+    const page = pageFiends("x",filter,entries,([,foe])=>foe.name,redraw,sheet);
+    for (const [id, foe] of page) {
       const seen = arenaValue(current, 512 + Math.floor(Number(id) / 8)) & (1 << (Number(id) % 8));
       const defeated = arenaValue(current, 576 + Math.floor(Number(id) / 8)) & (1 << (Number(id) % 8));
       const row = entry(foe.name,
@@ -936,6 +938,8 @@ function showBestiary(current) {
         const areas = Object.entries(ffxData.zones).filter(([, ids]) => ids.includes(Number(id))).map(([name]) => name);
         if (areas.length) row.append(element("p", "field-note", areas.join(" · ")));
       }
+      const dossier = captureDossier(current,foe.name);
+      if (dossier) row.append(dossier);
       if (foe.bribe) {
         const planner = bribePlanner(foe, Number(id) === bestiaryBribeTarget, () => wallet);
         planners.push(planner);
@@ -1019,12 +1023,13 @@ function showArena(current) {
     signature = "";
     render();
   };
-  for (const [value, title] of [["captures","Captures"],["hunt","Hunt"],["creations","Creations"],["farming","Farming"]]) {
+  for (const [value, title] of [["captures","Captures"],["atlas","Capture atlas"],["hunt","Hunt"],["creations","Creations"],["farming","Farming"]]) {
     const button = action(title, () => setView(value), arenaView === value);
     button.setAttribute("aria-pressed", String(arenaView === value));
     views.append(button);
   }
   panel.append(views);
+  if (arenaView === "atlas") { showCaptureAtlas(current); return; }
   if (arenaView === "hunt") {
     showArenaHunt(current);
     return;

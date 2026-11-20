@@ -311,6 +311,7 @@ function openGuideSection(anchor) {
 }
 
 function openGuide() {
+  if (typeof walkthroughHeadings !== "undefined") walkthroughHeadings = [];
   guideHost.replaceChildren();
   guideStatus = null;
   guideSuggestionBox = null;
@@ -417,7 +418,12 @@ function updateGuide(visible, frame, feedState) {
 window.addEventListener("message", event => {
   if (event.source !== guideFrame?.contentWindow || event.origin !== "null") return;
   const {kind} = event.data || {};
-  if (kind === "ready") {
+  if (kind === "index" && typeof walkthroughHeadings !== "undefined") {
+    const rows = Array.isArray(event.data.rows) ? event.data.rows : [];
+    walkthroughHeadings = rows.slice(0,2500).filter(row=>Array.isArray(row) && row.length===2 &&
+      row.every(s=>typeof s==="string" && s.length>0 && s.length<=200));
+    if (typeof dialogPage!=="undefined" && dialogPage==="index") drawFieldIndex();
+  } else if (kind === "ready") {
     guideReady = true;
     syncReaderDisplay();
     guideFailed = false;

@@ -72,6 +72,7 @@ function availableShellTools(current) {
 }
 function visitShellTool(previous,next,current) {
   if (next === previous) return;
+  rememberSection(previous,next,current);
   if (next === "glance") glanceOrigin = {tab:previous,scroll:panel.scrollTop,game:current?.game,parent:fieldPlanOrigin};
   if (focusTab) focusTab = "";
   if (current?.game && next !== "cheats" && workspaceTools.some(tool => tool.tab === next)) {
@@ -84,6 +85,7 @@ function syncToolRail(current) {
   const pins = workspacePins.filter(pin => pin.kind === "Tool").map(pin => rows.find(row => row.key === pin.key)).filter(Boolean);
   const key = JSON.stringify([shellGame,tab,displayPrefs.rail,rows.map(row => row.tab),pins.map(row => row.tab)]);
   if (key === railSignature) return;
+  syncPreviousSection();
   railSignature = key;
   const rail = document.querySelector("nav");
   rail.dataset.layout = displayPrefs.rail;
@@ -100,6 +102,7 @@ function syncToolRail(current) {
     rail.append(button);
   }
   if (dialogPage === "tools") drawToolResults();
+  if (dialogPage === "index") drawFieldIndex();
 }
 function refreshShellPins() {
   railSignature = "";
@@ -151,7 +154,7 @@ function openToolLibrary() {
   dialogPage = "tools";
   dialogHeader("All tools");
   const display = action("Display",openDisplayDialog);
-  shellDialog.querySelector(".dialog-heading .action").before(display);
+  shellDialog.querySelector(".dialog-heading .action").before(action("Page index",openFieldIndex),display);
   const search = element("input","workspace-search"); search.type = "search"; search.placeholder = "Find a tool";
   search.id = "shell-search"; search.setAttribute("aria-label","Find a tool");
   const list = element("div","tool-sections"); list.id = "shell-results";
@@ -197,12 +200,13 @@ function drawToolResults() {
     }
     fragment.append(section);
   }
-  if (query) group("Matches",rows.filter(row => workspaceWords(row.name + " " + (row.detail || "")).includes(workspaceWords(query))));
+  if (query) group("Matches",rows.filter(row => workspaceWords(query).split(" ").filter(Boolean).every(word => workspaceWords(row.name + " " + (row.detail || "")).includes(word))));
   else {
     group("Pinned",workspacePins.map(pin => rows.find(row => row.key === pin.key)));
     group("Recently opened",recentViews.map(id => byId.get(id)));
-    group("Play",["status","glance","guide","map","party","workspace"].map(id => byId.get(id)));
-    group("Plan and track",rows.filter(row => !["setup","profiles","cheats","journal"].includes(row.tab)));
+    for (const shelf of ["Journey","Battle","Party and training","Fiends and fieldwork","Completion","Sidequests"]) {
+      group(shelf,rows.filter(row=>fieldSections[sectionParent(row.tab)]?.[0]===shelf));
+    }
     group("Companion",rows);
   }
   if (!seen.size) fragment.append(element("p","","No matching tool for this game."));
@@ -215,4 +219,5 @@ function initDisplay() {
   document.querySelector("#focus-view").addEventListener("click",() => { focusTab = focusTab ? "" : tab; syncDisplay(shellCurrent); });
   shellDialog.addEventListener("close",() => { dialogPage = ""; resetGlanceShade(); });
   initGlanceControls();
+  initFieldIndex();
 }
