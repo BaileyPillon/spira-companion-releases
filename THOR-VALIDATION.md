@@ -1,5 +1,7 @@
 # Thor validation
 
+**1.43.0** passed 163 JavaScript tests and 45 native reader and write-guard checks. All 84 UI assets in the signed APK matched the source byte for byte. The packaged interface passed the visual tools and display suites at 350 × 420, 620 × 465 and 900 × 675. Browser replay covered the recorded Bevelle field and Celsius Chapter 5 frames, both grid layouts with controlled node changes, duplicate-item stock transitions, item-source round trips, diagram taps, undo and bonuses, all five destination chapters, and all four tools at 200% text. An independent review led to larger Garment Grid touch targets. The existing boss, route, equipment and expansion browser suites also passed. This release was published without installing on the Thor. [Research and screenshots](docs/research-1.43.md)
+
 For 1.42.0, all 79 UI assets extracted from the signed APK matched the checkout byte for byte. The packaged interface passed the display suite with the compatible offline guide, including text reflow deep in a chapter, and the 1.41 second-screen routes suite.
 
 **1.42.0** passed 158 JavaScript tests and 45 native reader and write-guard checks. Chrome exercised the display controls, game switch, pins, focus, Glance, shade/wake and guide return at 350 × 420, 620 × 465 and 900 × 675. The replay used the recorded Evrae opening and FFX-2 Chapter 5 party plus injected enemy, pause and timeout transitions. The reader test also loaded the supported 40,660,758-byte offline walkthrough using the sandboxed frame and message bridge.

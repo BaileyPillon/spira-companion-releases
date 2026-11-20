@@ -1,0 +1,70 @@
+.grid-canvas { background: var(--bg); }
+.node-legend, .mix-explorer, .chapter-board { margin-block: .7rem; border-block: 1px solid var(--line); }
+.node-legend > summary, .mix-explorer > summary, .chapter-board > summary, .destination-check > summary {
+  padding: .75rem .15rem; min-height: 46px; cursor: pointer; color: var(--accent); font-weight: 600;
+}
+.node-symbols { display: flex; gap: .5rem 1rem; flex-wrap: wrap; margin: 0; padding: 0; list-style: none; }
+.node-symbols li { display: flex; align-items: center; gap: .3rem; }
+.node-symbols canvas { width: 1.3rem; height: 1.3rem; }
+.node-inspector { padding: .75rem 1rem; background: var(--panel); border: 1px solid var(--edge); border-radius: 8px; }
+.node-inspector h2, .mix-explorer h2, .destination-body h2, .rehearsal-readout h3 {
+  margin: 0; font-size: 1.3rem; color: var(--text); overflow-wrap: anywhere;
+}
+.node-values { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .65rem; margin: .55rem 0; }
+.node-remotes summary { min-height: 44px; padding-block: .6rem; color: var(--accent); cursor: pointer; }
+.remote-source { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; margin-block: .4rem; }
+.node-values dt, .mix-stock-line, .destination-list small, .destination-check small, .practice-moves small,
+.mix-equation small, .mix-crosslinks small { color: var(--muted); font-size: .87rem; font-weight: 400; }
+.node-values dd { margin: .2rem 0 0; overflow-wrap: anywhere; }
+.node-values div:last-child dd { color: var(--accent); font-weight: 650; }
+.mix-explorer-body { padding-block: .25rem .9rem; }
+.mix-family, .recipe-pager, .practice-history { display: flex; align-items: center; flex-wrap: wrap; gap: .4rem; }
+.mix-family button, .recipe-pager button, .mix-crosslinks button, .practice-moves button, .destination-list button { min-height: 46px; }
+.mix-family button[aria-pressed="true"] { background: var(--selected); border-color: var(--accent); color: var(--text); }
+.mix-explorer select { max-width: 100%; width: 100%; margin-block: .6rem .9rem; }
+.mix-explorer-body .mix-effect, .mix-stock-line { margin-block: .4rem; }
+.mix-equation { position: relative; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1.5rem; margin-block: .9rem .35rem; }
+.mix-equation::after { content: "+"; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); color: var(--muted); }
+.mix-equation button, .mix-crosslinks button, .destination-list button, .practice-moves button {
+  text-align: start; overflow-wrap: anywhere; padding: .55rem .7rem; min-width: 0;
+}
+.mix-equation button { background: var(--panel); font-weight: 650; }
+.mix-equation small, .mix-crosslinks small, .destination-list small, .practice-moves small, .destination-check small { display: block; margin-top: .16rem; }
+.mix-stock-line { color: var(--warn); }
+.recipe-pager { margin-block: .5rem; }
+.mix-crosslinks, .destination-list, .practice-moves {
+  display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,10.5rem),1fr)); gap: .5rem; margin-block: .6rem;
+}
+.garment-grid-guide { container-type: inline-size; }
+.garment-route > button:first-child { grid-column: 1/-1; justify-self: start; min-height: 46px; }
+.garment-route:has(.garment-practice:not([hidden])) { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+.garment-stage { container-type: inline-size; position: relative; aspect-ratio: 1; width: 100%; max-width: 21rem; justify-self: center; }
+.garment-stage .garment-diagram { width: 100%; height: 100%; }
+.garment-pins { position: absolute; inset: 1px; pointer-events: none; }
+.garment-pins .action {
+  position: absolute; transform: translate(-50%,-50%); pointer-events: auto;
+  width: min(var(--pin-room),max(11%,48px)); height: min(var(--pin-room),max(11%,48px));
+  min-width: 0; min-height: 0; padding: 0; display: grid; place-items: center;
+  border: 0; background: transparent; line-height: 1; font-size: .95rem; font-weight: 650;
+}
+.practice-pin-face {
+  width: 11cqi; height: 11cqi; border-radius: 50%; display: grid; place-content: center;
+  color: var(--text); background: var(--panel); border: 1px solid var(--accent);
+}
+.garment-pins .action:disabled { opacity: 1; pointer-events: none; }
+.garment-pins .action:disabled span { border-color: var(--line); color: var(--muted); }
+.garment-pins .action.practice-current span { color: var(--bg); background: var(--accent); }
+.practice-trail { overflow-wrap: anywhere; color: var(--muted); font-size: .87rem; }
+.practice-bonus { color: var(--warn); }
+.practice-history .action { min-height: 46px; }
+.destination-body { padding-bottom: .7rem; }
+.destination-body h2 { margin-top: .65rem; }
+.chapter-board > summary small { display: block; margin-top: .25rem; font-weight: 400; font-size: .87rem; color: var(--muted); }
+.destination-list button { background: var(--bg); }
+.destination-list .destination-pending { background: var(--panel); border-color: var(--accent); }
+.destination-list progress { display: block; accent-color: var(--accent); width: 100%; height: .35rem; margin-block: .45rem .1rem; }
+.destination-check { border-block-end: 1px solid var(--line); }
+.destination-check p { margin-block: .25rem .75rem; }
+@container (max-width: 30rem) {
+  .garment-route:has(.garment-practice:not([hidden])) { grid-template-columns: minmax(0,1fr); }
+}

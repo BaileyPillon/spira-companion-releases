@@ -12,6 +12,10 @@ Open **Glance** for the active party, current target and FFX turn order, or the 
 
 ## Final Fantasy X
 
+**What did this node used to be?** Open **Sphere Grid** and tap it. The inspector shows the default node for this layout, the contents in your save and the characters who used it. Expand **Read the symbols** for the seven shapes. **Activate from anywhere** lists eligible remote spheres for a selected character who still needs the node.
+
+**What can Rikku make with this?** In **Rikku’s Mix → Explore Mix by effect**, choose an effect family and a result. Tap either ingredient to see its other results, then choose a result to browse only recipes using that item. **Back one step** retraces your choices. Two copies of the same ingredient count as one Mix.
+
 **Stuck on Yunalesca or Seymour Flux?** Open **Boss Prep → Story boss coach** or tap the coach during the encounter. Follow the current fight to see your front line and recovery stock. For Yunalesca, watch who still has Zombie or Deathproof when her second HP bar runs out. For Flux, look for the charge message on the game screen and check the turn order before summoning.
 
 **Racing at Remiem?** Open **Challenges → Remiem race navigator**. Win once for the Cloudy Mirror. On later runs, pick the prize before mounting and read the entire route or tap a landmark to bring up one turn at a time. The letters identify chests in the companion. Mark the prize after the game awards it.
@@ -44,6 +48,10 @@ The original HTML export is 40,660,758 bytes. Its SHA-256 checksum is `5cf7b6425
 | You’re playing Blitzball or chasing a sigil | **Blitzball** covers rosters, contracts, Techcopy, Wakka’s prizes and live matches. **Challenges** tracks Catcher Chocobo, Butterfly Catcher, lightning records and the current Cactuar clue. Start a fresh lightning streak at zero to use the estimate. |
 
 ## Final Fantasy X-2
+
+**Test a gate bonus.** Open **Equipment → Garment Grid gates → Rehearse spherechanges**. Tap a connecting slot or the named move beside the diagram. Watch the gate and bonus readout as you move, then **Undo step** or **Return to route**. Starting from **Current** in battle includes any gate crossings the game reports.
+
+**Find your next chapter stop.** In **Chapter Checklist → Destination board**, choose a chapter or follow the current one. Unfinished destinations come first. Tap a place, then a scene for its instructions. **Include conditional routes** controls alternate branches. An earlier chapter’s unrecorded scene may need a recovery check. Bars count the game’s recorded flags and manual ticks stay in the checklist below.
 
 **Inside the Thunder Plains New Cave?** After rescuing Cid, open **Challenges → Thunder Plains wall solver**. At the entrance, copy the first lower-right clue. At the target wall, add its upper-left clue. Before you leave, put the new lower-right clue in **Carry clue**. For a compound clue, enter the numbers joined by + or tap **Insert an earlier code or encounter count**. If it asks for an interval, enter the cumulative totals at the two indicated walls. Confirm after the wall opens. Select **Second puzzle clear** on your return for Force of Nature.
 

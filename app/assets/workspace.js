@@ -10,7 +10,7 @@ function detailKey(details) {
   return details.dataset.detailKey || details.querySelector("summary")?.textContent;
 }
 function rememberExpansionUi() {
-  if (panel.dataset.page !== tab || !(tab.startsWith("plan-") || ["workspace","planner","grid-lab","battle-lab","trials","blitzball","chapter-checklist"].includes(tab))) return null;
+  if (panel.dataset.page !== tab || !(tab.startsWith("plan-") || ["workspace","planner","grid","grid-lab","mix","equip","battle-lab","trials","blitzball","chapter-checklist"].includes(tab))) return null;
   const focused = panel.contains(document.activeElement) ? document.activeElement : null;
   return {
     scroll: panel.scrollTop,
@@ -51,10 +51,10 @@ const workspaceTools = [
   ["workspace","Workspace","Search the companion and open saved pins"],
   ["guide","Guide","Offline FFX Jegged walkthrough"],
   ["supplies","Items","Inventory, recovery supplies and spheres"],
-  ["equip","Equipment","Gear, accessories and abilities"],
+  ["equip","Equipment","Gear, accessories, abilities and FFX-2 Garment Grid rehearsal"],
   ["party","Party","Formation, health and character progress"],
-  ["mix","Rikku’s Mix","Overdrive recipes and ingredients","x"],
-  ["grid","Sphere Grid","Activation progress and routes","x"],
+  ["mix","Rikku’s Mix","Explore Mix by effect, Overdrive recipes and ingredient partners","x"],
+  ["grid","Sphere Grid","Node inspector, symbols, activation progress and routes","x"],
   ["arena","Monster Arena","Capture targets, hunts and creation rewards","x"],
   ["bestiary","Bestiary","Fiends, drops, steals and bribes","x"],
   ["x2-bestiary","Bestiary","Observed FFX-2 battle forms","x2"],
@@ -68,7 +68,7 @@ const workspaceTools = [
   ["blitzball","Blitzball","Team builder, rewards and techniques","x"],
   ["challenges","Challenges","Minigame records and live route guidance"],
   ["trials","Cloister guide","Temple routes and destruction sphere treasures","x"],
-  ["chapter-checklist","Chapter Checklist","FFX-2 chapter checks and missing scenes","x2"],
+  ["chapter-checklist","Chapter Checklist","Destination board, chapter checks and missing scenes","x2"],
   ["profiles","Profiles","Separate playthroughs and portable backups"]
 ].map(([tab,name,detail,game]) => ({key:"tool:"+tab, kind:"Tool", tab, name, detail, game}));
 if (typeof fieldPlans !== "undefined") for(const plan of fieldPlans) {

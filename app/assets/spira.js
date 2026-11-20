@@ -34,7 +34,7 @@ let signature = "";
 let lastSeen = 0;
 let reconnecting = false;
 let mixQuery = "";
-let returningToMix = false;
+let bestiaryReturnTab = null;
 let updateMix = null;
 let updateBestiary = null;
 let inventoryQuery = "";
@@ -83,7 +83,8 @@ function choose(nextTab, initialQuery = null, bribeTarget = null, itemSources = 
   }
   if (typeof coachManualNavigation === "function") coachManualNavigation();
   if (nextTab === "missables") focusedMissable = initialQuery;
-  returningToMix = nextTab === "bestiary" && tab === "mix" && initialQuery != null;
+  if (nextTab !== "bestiary") bestiaryReturnTab = null;
+  else if (tab !== "bestiary") bestiaryReturnTab = initialQuery != null && ["grid","mix"].includes(tab) ? tab : null;
   if (nextTab === "mix") {
     if (initialQuery != null) mixQuery = initialQuery;
     signature = "";

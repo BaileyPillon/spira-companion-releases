@@ -39,6 +39,10 @@ nav [aria-current], nav button[aria-current], .action.primary, .loadout-roster [
 }
 nav button[aria-current] { font-weight: 700; }
 nav button[aria-current]::before { content: "▸"; color: var(--warn); margin-inline-end: .3em; }
+@media (min-width:476px) {
+  nav button[aria-current] { position: relative; padding-inline: 15px 4px; }
+  nav button[aria-current]::before { position: absolute; inset-inline-start: 3px; }
+}
 #tool-library { color: var(--accent); border-bottom: 1px solid var(--line); border-radius: 0; font-weight: 700; }
 nav button { min-height: 48px; overflow-wrap: anywhere; }
 button:hover, .action.primary:hover { background-color: var(--hover); }

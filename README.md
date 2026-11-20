@@ -13,7 +13,9 @@
 
 *Zanarkand Cloister, captured on the Thor. The gold dot follows Tidus as you move.* [Game screen](docs/images/zanarkand-top.webp) · [Companion screen](docs/images/zanarkand-guide.webp)
 
-**New in 1.42.** The menus change with the game. Open **Glance** for Evrae’s turn order or your Gullwings’ current dresspheres, pin a favorite tool to the short menu, or open **Display** to enlarge the text and choose OLED black. [Screenshots and the player feedback behind the update](docs/research-1.42.md)
+**New in 1.43.** Tap a Sphere Grid node to compare its original contents with your save. Follow a Rikku Mix from effect to ingredient and back. In FFX-2, rehearse a Garment Grid change or open the Chapter Checklist to see which destinations still have unrecorded scenes. [See the four screens and the requests behind them](docs/research-1.43.md)
+
+The menus follow the game’s palette. **Glance** shows the party or current encounter, and **Display** controls reading size and OLED black. [Glance and display controls](docs/research-1.42.md)
 
 <img src="docs/images/glance-1.42.webp" width="960" alt="Glance during the Evrae fight in FFX and aboard the Celsius in FFX-2, replayed from Thor captures.">
 

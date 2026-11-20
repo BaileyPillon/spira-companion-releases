@@ -52,6 +52,7 @@ function x2GroupSceneChecks(rows) {
 }
 function showX2SceneAudit(current) {
   const scenes=x2SceneAudit(current);if(!scenes)return;
+  showChapterBoard(current,scenes);
   const section=element("details","planner-config scene-audit");section.append(element("summary","","Missing-scene diagnosis and chapter exit check"));
   const controls=element("div","filters");
   const chapter=options("Scene audit chapter",[[0,"Current chapter"],...[1,2,3,4,5].map(n=>[n,"Chapter "+n])],sceneAuditChapter,value=>{sceneAuditChapter=Number(value);draw();});

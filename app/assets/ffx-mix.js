@@ -196,7 +196,8 @@ function showMix(current, initialQuery) {
     pairFields.append(field);
   }
   calculator.append(pairFields, pairResult, pairStock);
-  panel.append(readiness, controls, quick, pinned, calculator, results);
+  const explorer = makeMixExplorer();
+  panel.append(readiness, controls, explorer.host, quick, pinned, calculator, results);
 
   let stock;
   let previousStock = "";
@@ -329,6 +330,7 @@ function showMix(current, initialQuery) {
     if (key === previousStock) return;
     stock = inventory;
     previousStock = key;
+    explorer.update(stock);
     renderQuick();
     renderPinned();
     updatePairStock();

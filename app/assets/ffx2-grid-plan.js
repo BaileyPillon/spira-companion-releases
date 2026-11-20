@@ -111,6 +111,15 @@ function drawX2Grid(canvas, topology, route, start, blocked, crossed) {
         ctx.fillRect(-1.5,-1.5,3,3);
       }
       ctx.restore();
+      if (color >= 0 && color < x2GateColors.length) {
+        ctx.save();
+        ctx.font = "bold 5px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = id >= 0 && (crossed & (1 << id)) ? "#fff" : "#13212a";
+        ctx.fillText(x2GateColors[color][0],x,y+.25);
+        ctx.restore();
+      }
     }
   }
   ctx.textAlign = "center";
@@ -191,7 +200,8 @@ function showX2GridPlan(host, topology, gates, plan, live, special) {
     field.append(input);
     controls.append(field);
   }
-  surface.append(controls, occupied, canvas, text);
+  const practice = garmentRehearsal(topology,rewards,plan,live,canvas);
+  surface.append(practice.toggle, controls, occupied, practice.stage, practice.body, text);
   host.append(surface);
   update();
 
@@ -204,6 +214,11 @@ function showX2GridPlan(host, topology, gates, plan, live, special) {
       visitAll || !reward?.value ? 0 : rewards[Number(reward.value)][0];
     const crossed = live?.crossed;
     const already = crossed == null ? 0 : x2GridCrossed(live.rows, crossed);
+    const practicing = practice.show(first,blocked,follow ? already : 0,update);
+    text.hidden = practicing;
+    if (reward) reward.parentElement.hidden = practicing;
+    end.parentElement.hidden = practicing;
+    if (practicing) return;
     const visited = follow ? live.ids.reduce((mask, id, slot) =>
       crossed & (1 << id) ? mask | (1 << slot) : mask, 0) : 0;
     const route = x2GridRoute(topology, first, required, blocked, last,

@@ -862,7 +862,10 @@ function openItemSources(query = null) {
 
 function showBestiary(current) {
   heading("Bestiary", bestiaryMode === "gear" ? "Find equipment and compare drop odds" : "Find fiends and item sources");
-  if (returningToMix) panel.append(action("Back to Mix", () => choose("mix")));
+  if (bestiaryReturnTab) {
+    const origin = bestiaryReturnTab;
+    panel.append(action(origin === "grid" ? "Back to Sphere Grid" : "Back to Mix", () => choose(origin)));
+  }
   const modes = element("div", "filters");
   const sections = [["fiends","Fiends"],["items","Item sources"]];
   if (current.disc === "SLPS-25088") sections.push(["gear","Gear Drops"]);
@@ -1199,11 +1202,13 @@ function gridStatPlan(current, graph, member, index, target) {
 function showGrid(current) {
   const graph = liveGridLayout(current);
   heading("Sphere Grid", graph === ffxData.expert ? "Expert layout" : "Standard layout");
-  panel.append(action("Open build sandbox", () => choose("grid-lab")));
+  const sandbox = action("Open build sandbox", () => choose("grid-lab"));
   const bar = element("div", "filters");
   const member = selectMember(current, bar);
   if (!member) return;
   const gridOrigin = current.gridPositions?.[member.id];
+  const viewKey = [current.disc, graph === ffxData.expert, member.id].join("/");
+  if (selectedGridNode >= graph.nodes.length) selectedGridNode = null;
   const hasPosition = Number.isInteger(gridOrigin) && gridOrigin >= 0 && gridOrigin < graph.nodes.length;
   const names = graph.nodes.map((_, i) => ffxData.types[gridBytes(current,i)[0]]?.[0] || "Unknown node");
   const activated = graph.nodes.map((_, i) => !!(gridBytes(current,i)[1] & (1 << member.id)));
@@ -1214,12 +1219,15 @@ function showGrid(current) {
   const context = canvas.getContext("2d");
   const note = element("p", "grid-note");
   const details = element("p", "grid-note");
+  const inspector = element("div", "grid-selected");
+  let inspected;
   const sphereSource = element("div", "grid-sphere-source");
   const amounts = itemAmounts(current.items);
   const filter = element("div", "filters grid-filters");
   const search = element("input");
   search.type = "search";
   search.placeholder = "Find an ability or node";
+  search.value = gridSearches.get(viewKey) || "";
   search.setAttribute("aria-label", search.placeholder);
   const gridChoices = names.map((name,i) => [i, name + " · " + (i + 1)]);
   const selected = options("Grid node", [["","Select a node"], ...gridChoices],
@@ -1250,7 +1258,7 @@ function showGrid(current) {
     selected.value = selectedGridNode ?? "";
     return matched;
   }
-  search.addEventListener("input", filterNodes);
+  search.addEventListener("input", () => { gridSearches.set(viewKey, search.value); filterNodes(); });
   search.addEventListener("keydown", event => {
     if (event.key !== "Enter" || !search.value.trim()) return;
     const matches = filterNodes();
@@ -1273,7 +1281,8 @@ function showGrid(current) {
   view.append(locate, action("+", () => zoom(1.45)), action("−", () => zoom(1 / 1.45)), action("Fit grid", () => fit()), lockToggle);
   view.children[1].setAttribute("aria-label", "Zoom in");
   view.children[2].setAttribute("aria-label", "Zoom out");
-  panel.append(bar, note, totals, filter, details, sphereSource, view, canvas);
+  const legend = gridLegend();
+  panel.append(bar, note, canvas, view, inspector, details, sphereSource, legend, totals, filter, sandbox);
   filterNodes();
   const needs = new Map();
   for (const [index,state] of states.entries()) {
@@ -1346,7 +1355,7 @@ function showGrid(current) {
   const bounds = graph.nodes.reduce((box,[x,y]) => [
     Math.min(box[0],x), Math.min(box[1],y), Math.max(box[2],x), Math.max(box[3],y)
   ], [Infinity,Infinity,-Infinity,-Infinity]);
-  let scale = 1, panX = 0, panY = 0, drag = null;
+  let scale = .55, panX = 0, panY = 0, drag = null;
   const width = canvas.clientWidth;
   const height = canvas.clientHeight;
   const dpr = window.devicePixelRatio || 1;
@@ -1369,7 +1378,7 @@ function showGrid(current) {
   }
   function focusNode(index) {
     [panX, panY] = graph.nodes[index];
-    scale = Math.max(scale, .32);
+    scale = Math.max(scale, .55);
   }
   function refresh() {
     if (!route || routeTarget !== selectedGridNode) {
@@ -1408,8 +1417,13 @@ function showGrid(current) {
       sphereSource.replaceChildren();
       sphereSource.dataset.item = name || "";
       if (name) sphereSource.append(element("p", "field-note", `${name} · ${amounts.get(sphere) || 0} owned`),
-        action("Find " + name, () => choose("bestiary", name)));
+        action("Find " + name, () => openItemSources(name)));
     }
+    if (inspected !== selectedGridNode) {
+      inspected = selectedGridNode;
+      inspector.replaceChildren(...(inspected == null ? [] : [gridNodeInspector(graph,current,inspected,member.id,amounts)]));
+    }
+    gridViews.set(viewKey, [scale, panX, panY]);
     context.clearRect(0,0,width,height);
     for (const [a,b,center] of graph.links) {
       const [x,y] = point(graph.nodes[a]);
@@ -1430,13 +1444,21 @@ function showGrid(current) {
     graph.nodes.forEach((node,i) => {
       const [x,y] = point(node);
       if (x < -8 || x > width + 8 || y < -8 || y > height + 8) return;
-      const type = ffxData.types[gridBytes(current,i)[0]];
-      context.beginPath();
-      context.arc(x,y, Math.max(1.5, Math.min(i === selectedGridNode ? 8 : 5, scale * 9)),0,2*Math.PI);
-      context.fillStyle = i === selectedGridNode || pathNodes.has(i) ? "#f4cc90" : !showNode(i) ? "#283f48" :
-        gridFocus === "inactive" || activated[i] ? "#91e1cf" : type?.[1] ? "#e2948b" :
-        gridFocus === "empty" || type?.[2] ? "#a9bdf6" : "#59757e";
-      context.fill();
+      const kind = kinds[i];
+      const size = Math.max(2, Math.min(7, scale * 9));
+      drawGridGlyph(context, kind, x, y, size, !showNode(i) ? "#415065" : gridGlyphs[kind][1]);
+      if (activated[i] && size >= 4 && states[i] === "active") {
+        context.beginPath();
+        context.arc(x,y,1.35,0,2*Math.PI);
+        context.fillStyle = "#101828";
+        context.fill();
+      }
+      if (i === selectedGridNode || pathNodes.has(i)) {
+        context.beginPath();
+        context.arc(x,y,size + (i === selectedGridNode ? 4 : 1),0,2*Math.PI);
+        context.strokeStyle = i === selectedGridNode ? "#fff" : "#ffdb96";
+        context.stroke();
+      }
       if (hasPosition && i === gridOrigin) {
         context.beginPath();
         context.arc(x,y,Math.max(5, Math.min(8,scale * 9 + 3)),0,2*Math.PI);
@@ -1472,6 +1494,13 @@ function showGrid(current) {
     refresh();
   });
   canvas.addEventListener("wheel", event => { event.preventDefault(); zoom(event.deltaY < 0 ? 1.2 : 1/1.2); }, {passive:false});
-  if (selectedGridNode >= graph.nodes.length) selectedGridNode = null;
-  fit();
+  const kinds = graph.nodes.map((_,i) => gridGlyph(gridBytes(current,i)[0]));
+  const savedView = gridViews.get(viewKey);
+  if (savedView) {
+    [scale, panX, panY] = savedView;
+    refresh();
+  } else if (hasPosition) {
+    focusNode(gridOrigin);
+    refresh();
+  } else fit();
 }
