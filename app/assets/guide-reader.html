@@ -111,7 +111,7 @@
       const nearTop=heading && Math.abs(heading.getBoundingClientRect().top-14)<8;
       const target = nearTop ? heading : caret && Math.abs(caret.top - 32) < 36 ? range : element?.closest("p, h1, h2, h3, li, img");
       resizeAnchor = target ? {target, top:target.getBoundingClientRect().top} : null;
-      report("position-ready");
+      window.parent.postMessage({kind:"position-ready",ticket:event.data.anchor},"*");
     }
   });
   function restoreReadingPosition() {

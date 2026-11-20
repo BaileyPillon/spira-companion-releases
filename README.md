@@ -13,7 +13,7 @@
 
 *Zanarkand Cloister, captured on the Thor. The gold dot follows Tidus as you move.* [Game screen](docs/images/zanarkand-top.webp) · [Companion screen](docs/images/zanarkand-guide.webp)
 
-## What’s new in 1.45.0
+## What’s new in 1.45.1
 
 | While playing | Open this on the lower screen |
 | --- | --- |

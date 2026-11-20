@@ -163,6 +163,7 @@ let guideToggle;
 let guideExpand;
 let guideExit;
 let guideResize;
+let guideResizeId=0;
 let guideBusy = false;
 let guideManualAnchor = null;
 let guideWait;
@@ -286,10 +287,10 @@ function setGuideFullscreen(expand, focus = true) {
 
 function toggleGuideFullscreen() {
   if (!guideReady || guideResize != null) return;
-  // The 40 MB walkthrough can need more than a frame to measure its visible line.
-  // Only the reader's position-ready reply should trigger a layout change.
-  guideResize = setTimeout(() => { guideResize=null; },5000);
-  sendGuide("remember-position");
+  // Give the reader time to measure its visible line. Full screen still works
+  // if the frame stays responsive to touch but its acknowledgement never arrives.
+  guideResize = setTimeout(applyGuideResize,1800);
+  sendGuide("remember-position",++guideResizeId);
 }
 
 function applyGuideResize() {
@@ -449,7 +450,7 @@ window.addEventListener("message", event => {
   } else if (kind === "idle") {
     guideBusy = false;
     syncGuide();
-  } else if (kind === "position-ready") {
+  } else if (kind === "position-ready" && event.data.ticket===guideResizeId) {
     applyGuideResize();
   } else if (kind === "exit-fullscreen") {
     window.SpiraGuide.exitFullscreen();
