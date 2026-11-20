@@ -1,0 +1,49 @@
+/* The coin table, primer shelf and chapter strip use the game's reading palette. */
+.primer-shelf { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,4.6rem),1fr)); gap:.3rem; }
+.primer-shelf button { min-height:48px; display:grid; gap:.1rem; padding:.35rem .25rem; align-content:center; }
+.primer-shelf strong, .chapter-timeline strong, .practice-core { font-family:var(--menu-heading); }
+.primer-shelf small, .chapter-timeline small { font-size:.8rem; color:var(--muted); }
+.primer-shelf button[data-owned="true"] { background:var(--panel); }
+.primer-shelf button[aria-pressed="true"], .chapter-timeline [aria-current="step"] { outline:2px solid var(--accent); outline-offset:-2px; }
+.primer-detail { border-block:1px solid var(--line); padding:.65rem 0; }
+.primer-detail h3, .sphere-practice h3 { margin:.3rem 0; font:600 1.2rem/1.25 var(--menu-heading); }
+.primer-state { color:var(--accent); }
+.primer-deadlines { display:flex; flex-wrap:wrap; align-items:center; gap:.35rem; margin-bottom:.6rem; }
+.primer-deadlines strong { padding-inline-end:.35rem; }
+.primer-reader, .sphere-practice { border-block-end:1px solid var(--line); margin-bottom:.7rem; }
+.primer-reader summary, .sphere-practice summary { cursor:pointer; min-height:44px; padding-block:.65rem; font-weight:650; }
+.primer-reader textarea { width:100%; font:inherit; color:var(--text); background:var(--bg); }
+.primer-translation { display:block; white-space:pre-wrap; overflow-wrap:anywhere; color:var(--accent); font:600 1.25rem/1.4 var(--menu-heading); margin-block:.35rem; }
+.primer-translation:empty { display:none; }
+.chapter-timeline { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,5.2rem),1fr)); gap:.35rem; }
+.chapter-timeline button { min-width:0; display:grid; align-content:start; gap:.25rem; text-align:start; padding:.55rem; overflow-wrap:anywhere; }
+.chapter-timeline progress { width:100%; height:.4rem; accent-color:var(--accent); }
+.chapter-review .goal-choice { margin-bottom:.5rem; }
+.chapter-timeline span, .practice-tally { font-variant-numeric:tabular-nums; }
+.practice-board { width:min(100%,19rem); display:grid; grid-template-columns:1rem repeat(5,minmax(0,1fr)); gap:3px; margin:.7rem auto; }
+.practice-axis { align-self:center; text-align:center; color:var(--muted); font-variant-numeric:tabular-nums; }
+.practice-board button, .practice-core { aspect-ratio:1; min-width:0; min-height:42px; padding:.1rem; display:grid; position:relative; place-items:center; border-radius:50%; font-variant-numeric:tabular-nums; }
+.practice-board button { border:1px solid var(--edge); background:var(--panel); color:var(--text); }
+.practice-board .practice-entry { border:2px solid var(--warn); }
+.practice-core { background:var(--selected); color:var(--accent); font-size:1.35rem; }
+.practice-board [aria-pressed="true"] { background:var(--selected); color:var(--accent); }
+.practice-board [data-hint] { outline:2px dashed var(--accent); outline-offset:-3px; }
+.practice-board button small { position:absolute; bottom:1px; right:0; background:var(--bg); color:var(--accent); line-height:1.15; }
+.practice-tally { font-weight:650; color:var(--accent); }
+.practice-path { overflow-wrap:anywhere; }
+.personal-jump { display:flex; align-items:center; flex-wrap:wrap; gap:.35rem; }
+.personal-jump button { max-width:100%; overflow-wrap:anywhere; text-align:start; }
+#section-jump-feedback:empty { display:none; }
+.guide-marks { display:grid; gap:.4rem; }
+.guide-marks .library-line button { overflow-wrap:anywhere; }
+.visual-focus .identity span { overflow-wrap:anywhere; }
+@media(max-width:475px) {
+  .visual-focus header .identity { display:none; }
+  .visual-focus header .shell-actions { width:100%; justify-content:space-between; flex-wrap:wrap; }
+  header .identity span { overflow-wrap:anywhere; }
+}
+[data-large-type] .shell-actions { flex-wrap:wrap; justify-content:flex-end; }
+@media(max-width:650px) {
+  [data-large-type] header .identity { display:none; }
+  [data-large-type] header .shell-actions { width:100%; justify-content:space-between; }
+}

@@ -8,13 +8,19 @@ Open **Display** in the top bar. **Match the game** changes the menu when you sw
 
 **All tools** searches the current game’s tools and shows your recent choices. Use **Pin** to add a tool to Workspace. Up to four pinned tools available in the current game appear in the short navigation menu. To restore the long menu, choose **Display → Navigation → Show all tabs**.
 
-Open **Glance** for the active party, current target and FFX turn order, or the next objective in the field. **Shade screen** covers the companion in black. Tap anywhere or press a key to wake it. Automatic shading applies only in Glance and defaults to manual. Use **Exit Glance** to return to your previous view. On Map, Sphere Grid, Grid sandbox, Cloister guide, Blitzball or Challenges, **Focus** hides the sidebar until you choose **Exit focus**.
+Open **Glance** for the active party, current target and FFX turn order, or the next objective in the field. **Shade screen** covers the companion in black. Tap anywhere or press a key to wake it. Automatic shading applies only in Glance and defaults to manual. Use **Exit Glance** to return to your previous view.
+
+**Focus** gives an ordinary tool the full width. **Page index → All tools** lets you switch tools from there. Choose **Display → When opening a tool → Use full width** to make this your default. In a tool’s **Page index**, choose **Set a shortcut** and pick a heading or control, such as Formation in Party. Open the same index later to use, change or remove your shortcut. A jump to a control gives it focus. Actions that change a plan or setting require a separate press.
 
 **When you lose your place**, tap **Page index**. Type a section, character, fiend or control shown on this page. Tap the result to go there. **Related tools** stays within the current game. The supported offline walkthrough has its own searchable destinations. In full screen, choose **All tools → Page index**. Use **Back** to return after a side trip.
 
 **Leave a note for your next session.** With a game open, go to **Journal**, enter what you want to do next and choose **Save checkpoint**. Return to that profile with either game closed to read the note and the last observed route. While playing, you can also see the current objective and, in FFX, resume a tracked hunt.
 
 ## Final Fantasy X
+
+**Which volume did I miss?** Open **Collections → Al Bhed Primers**. Pick a Roman numeral to see its location, letter pair and pickup instructions. The missing one-time volumes from Home and Bevelle appear above the shelf. **Read an Al Bhed phrase** uses your collected volumes. For example, type `Rammu!` to try reading “Hello!” with the letters you own. Select **Use the full alphabet** for the complete translation.
+
+**Keep two places in the walkthrough.** In the supported offline FFX guide, open **Bookmarks → Save current section** in the docked or full-screen reader. A bookmark takes you back to a named section and pauses following so you can read. **Back to game** resumes following. You can remove each bookmark separately.
 
 **Which area can I finish next?** Open **Monster Arena → Capture atlas**. Choose **5 of each** to see the remaining catches for that goal. Tap a region, then a fiend for its dossier or **Hunt** for its hunting spots. Use **Back** to return to your region. In either game’s Bestiary, search first or select a range of names.
 
@@ -56,6 +62,10 @@ The original HTML export is 40,660,758 bytes. Its SHA-256 checksum is `5cf7b6425
 | You’re playing Blitzball or chasing a sigil | **Blitzball** covers rosters, contracts, Techcopy, Wakka’s prizes and live matches. **Challenges** tracks Catcher Chocobo, Butterfly Catcher, lightning records and the current Cactuar clue. Start a fresh lightning streak at zero to use the estimate. |
 
 ## Final Fantasy X-2
+
+**Which chapter should I review?** **Chapter Checklist → Chapter review** counts recorded scene checks across five chapters. Choose **Count conditional scenes** to include alternate routes. Tap a chapter to open its unfinished destinations with the same filter. Future chapters are labeled separately. The story percentage appears below the scene tools.
+
+**Learn Sphere Break between matches.** Open **Challenges → Sphere Break → Practice Sphere Break**. Tap one of the four entry coins, then an unused coin to build the sum to a multiple of the core. **Show next coin** marks one position, and **Undo coin** lets you try another route. To rehearse a board from a match, enter the values in the calculator below and choose **Practice calculator board**. An untimed practice turn leaves the calculator’s entries in place.
 
 **Who still needs AP?** Open **Equipment → Party dressphere mastery**. Each owned, supported standard job has one cell for Yuna, Rikku and Paine. Choose **Unfinished jobs only** to narrow the board. Tap a cell for the character’s abilities and AP costs. Trainer and Mascot use a separate ability list for each character. The totals count learnable AP abilities.
 

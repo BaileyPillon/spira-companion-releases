@@ -286,13 +286,16 @@ function setGuideFullscreen(expand, focus = true) {
 
 function toggleGuideFullscreen() {
   if (!guideReady || guideResize != null) return;
-  guideResize = setTimeout(applyGuideResize, 250);
+  // The 40 MB walkthrough can need more than a frame to measure its visible line.
+  // Only the reader's position-ready reply should trigger a layout change.
+  guideResize = setTimeout(() => { guideResize=null; },5000);
   sendGuide("remember-position");
 }
 
 function applyGuideResize() {
   if (guideResize == null) return;
   setGuideFullscreen(!document.body.classList.contains("guide-fullscreen"));
+  requestAnimationFrame(()=>sendGuide("restore-position"));
 }
 
 function syncGuide() {
@@ -343,7 +346,7 @@ function openGuide() {
   guideExpand = action("Full screen", toggleGuideFullscreen);
   guideExit = action("Exit full screen", toggleGuideFullscreen);
   guideExit.classList.add("guide-exit");
-  controls.append(contents, guideToggle, guideExpand);
+  controls.append(contents,guideToggle,action("Bookmarks",openGuideMarks),guideExpand);
   bar.append(guideStatus, controls);
   guideFrame = element("iframe", "guide-document guide-document-loading");
   guideFrame.title = "Offline Jegged walkthrough";
@@ -358,7 +361,7 @@ function openGuide() {
   footer.append(workspace);
   const tools = action("All tools", () => openToolLibrary());
   tools.classList.add("guide-library");
-  footer.append(tools,guideExit);
+  footer.append(tools,action("Bookmarks",openGuideMarks),guideExit);
   refreshGuideControls();
   guideFrame.src = guideOrigin + "/walkthrough.html";
   clearTimeout(guideWait);
@@ -418,11 +421,13 @@ function updateGuide(visible, frame, feedState) {
 window.addEventListener("message", event => {
   if (event.source !== guideFrame?.contentWindow || event.origin !== "null") return;
   const {kind} = event.data || {};
+  if (kind === "bookmark") { recordGuideMark(event.data.id); return; }
   if (kind === "index" && typeof walkthroughHeadings !== "undefined") {
     const rows = Array.isArray(event.data.rows) ? event.data.rows : [];
     walkthroughHeadings = rows.slice(0,2500).filter(row=>Array.isArray(row) && row.length===2 &&
       row.every(s=>typeof s==="string" && s.length>0 && s.length<=200));
     if (typeof dialogPage!=="undefined" && dialogPage==="index") drawFieldIndex();
+    if (typeof dialogPage!=="undefined" && dialogPage==="bookmarks") drawGuideMarks();
   } else if (kind === "ready") {
     guideReady = true;
     syncReaderDisplay();
@@ -430,6 +435,8 @@ window.addEventListener("message", event => {
     clearTimeout(guideWait);
     syncGuide();
     guideFrame.classList.remove("guide-document-loading");
+    if (typeof dialogPage!=="undefined" && dialogPage==="bookmarks") drawGuideMarks();
+    if (typeof dialogPage!=="undefined" && dialogPage==="index") drawFieldIndex();
   } else if (kind === "browse") {
     guideFollowing = false;
     refreshGuideControls();

@@ -144,7 +144,7 @@ function showX2SphereBreak() {
     entry("Coin Count Echo", "Use the same total number of coins as the previous turn. A core of 1 ends the move on the first coin and resets this Echo."),
     entry("Multiplier Echo", "Use the same multiple of the core as the previous turn. For example, 12 on a core of 4 and 15 on a core of 5 both count as 3×."));
   help.append(element("summary", "", "Shinra and Echo rules"), rules);
-  panel.append(workspace, help);
+  panel.append(spherePracticePanel(),workspace,help);
   draw();
 
   function input(label, key, length, placeholder) {

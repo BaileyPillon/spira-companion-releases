@@ -10,14 +10,15 @@ function displayPreferences(value) {
     theme:Object.hasOwn(displayThemes,value?.theme) ? value.theme : "auto",
     size:typeScales.includes(value?.size) ? value.size : 100,
     rail:value?.rail === "all" ? "all" : "short",
+    wide:value?.wide === true,
     shade:shadeDelays.includes(value?.shade) ? value.shade : 0
   };
 }
 let displayPrefs = displayPreferences(readCompanionSetting(displayKey,{}));
 let shellGame = "", lastPaletteGame = "x", shellCurrent = null, railSignature = "", dialogPage = "";
-let focusTab = "", glanceOrigin = {tab:"status",scroll:0}, recentViews = [];
+let focusTab = "", lastLayoutTab = "", glanceOrigin = {tab:"status",scroll:0}, recentViews = [];
 const shellDialog = document.querySelector("#shell-dialog");
-const focusableViews = ["map","grid","grid-lab","trials","blitzball","challenges"];
+function canFocusTool(key) { return key !== "guide" && key !== "glance"; }
 function recentKey(game) { return "spira.recent-tools." + game + ".v1"; }
 function shellTheme(game) { return displayPrefs.theme === "auto" ? game || lastPaletteGame : displayPrefs.theme; }
 function syncDisplay(current) {
@@ -36,10 +37,15 @@ function syncDisplay(current) {
   root.style.setProperty("--reading-scale",String(displayPrefs.size / 100));
   const full = tab === "glance";
   document.body.classList.toggle("glance-open",full);
-  if (focusTab !== tab) focusTab = "";
+  if (lastLayoutTab !== tab) {
+    focusTab = displayPrefs.wide && canFocusTool(tab) ? tab : "";
+    lastLayoutTab=tab;
+  }
   document.body.classList.toggle("visual-focus",!!focusTab);
   const focus = document.querySelector("#focus-view");
-  focus.hidden = !focusableViews.includes(tab);
+  focus.hidden = !canFocusTool(tab);
+  document.querySelector("#focus-index").hidden = !focusTab;
+  document.querySelector(".identity span").textContent = focusTab ? workspaceTools.find(row=>row.tab===tab)?.name || (tab==="cheats" ? "Cheats" : "Spira Companion") : "Spira Companion";
   focus.textContent = focusTab ? "Exit focus" : "Focus";
   focus.setAttribute("aria-pressed",String(!!focusTab));
   syncGlanceShade(full);
@@ -50,6 +56,7 @@ function setDisplayPreference(name,value,message) {
     message.textContent = "Could not save the display preference.";
     return false;
   }
+  if (name==="wide") lastLayoutTab="";
   displayPrefs = next;
   syncDisplay(shellCurrent);
   refreshShellPins();
@@ -145,6 +152,7 @@ function openDisplayDialog() {
   option("Menu palette","theme",Object.entries(displayThemes),String);
   option("Text size","size",typeScales.map(n => [n,n + "%"]),Number);
   option("Navigation","rail",[["short","Short menu and pins"],["all","Show all tabs"]],String);
+  option("When opening a tool","wide",[[false,"Show navigation"],[true,"Use full width"]],v=>v==="true");
   option("Shade Glance after","shade",shadeDelays.map(n => [n,n ? n + " seconds without a touch" : "Manual only"]),Number);
   updatePreview();
   shellDialog.append(preview,fields,message);
@@ -217,7 +225,8 @@ function initDisplay() {
   document.querySelector("#display-settings").addEventListener("click",openDisplayDialog);
   document.querySelector("#tool-library").addEventListener("click",openToolLibrary);
   document.querySelector("#focus-view").addEventListener("click",() => { focusTab = focusTab ? "" : tab; syncDisplay(shellCurrent); });
-  shellDialog.addEventListener("close",() => { dialogPage = ""; resetGlanceShade(); });
+  document.querySelector("#focus-index").addEventListener("click",openFieldIndex);
+  shellDialog.addEventListener("close",() => { if (!shellDialog.open) dialogPage = ""; resetGlanceShade(); });
   initGlanceControls();
   initFieldIndex();
 }

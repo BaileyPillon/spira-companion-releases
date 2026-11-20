@@ -30,9 +30,9 @@ const preferredLandmarks = {
   bestiary:["Search fiend or item","Item sources","Gear Drops"], "x2-bestiary":["Search Bestiary","Encounter area","Fiend index page"],
   "field-guide":["Tracker","Gun Mage","Via Infinito floor sweep"], map:["Follow player","Exits","Previous area"],
   journal:["My checkpoint","Next time I play","Observed route"], setup:["The controller is on the wrong screen","Gameplay options","Playthrough profiles and backups"],
-  missables:["Anima temple treasures"], collections:["Collection","Missing only"], blitzball:["Live match","Team Builder","Rewards"],
-  challenges:["Challenge","Sphere Break","Chocobo Ranch","Remiem race navigator"], trials:["Temple","Open walkthrough"],
-  "chapter-checklist":["Destination board","Missing-scene diagnosis and chapter exit check","Checklist chapter"],
+  missables:["Anima temple treasures"], collections:["Primer shelf","Read an Al Bhed phrase","Collection","Missing only"], blitzball:["Live match","Team Builder","Rewards"],
+  challenges:["Challenge","Practice Sphere Break","Sphere Break","Chocobo Ranch","Remiem race navigator"], trials:["Temple","Open walkthrough"],
+  "chapter-checklist":["Chapter review","Destination board","Missing-scene diagnosis and chapter exit check","Checklist chapter"],
   profiles:["Playthrough profile","Backup and restore"], cheats:["Cheat target","Set amount"],
   planner:["Choose goals and party","Open next step","Additional item targets"], "grid-lab":["Saved builds","Copy current grid"],
   "battle-lab":["Target","Battle comparison"], "plan-phase":["Fight","Battle stage"], "plan-remiem":["Race prize","Back to start"],
@@ -185,6 +185,38 @@ function jumpLandmark(id,activate=false) {
   node.focus({preventScroll:true});
   node.scrollIntoView({block:"center"});
 }
+let editingSectionShortcut=false;
+function shortcutKey() { return "spira.section-jump."+(shellCurrent?.game || "companion")+"."+tab; }
+function sectionShortcutControls(candidates) {
+  const box=element("div","personal-jump");
+  const saved=readCompanionSetting(shortcutKey(),null);
+  const match=saved && candidates.find(r=>r.id===saved.id && r.label===saved.label);
+  if (saved?.label && !editingSectionShortcut) {
+    const jump=action("My shortcut · "+saved.label,()=>jumpLandmark(saved.id));
+    jump.disabled=!match;
+    jump.setAttribute("aria-label","My shortcut · "+saved.label);
+    box.append(jump);
+    if (!match) box.append(element("small","field-note","Available when this section is on the page."));
+  }
+  const edit=action(editingSectionShortcut ? "Cancel selection" : saved ? "Change shortcut" : "Set a shortcut",()=>{
+    editingSectionShortcut=!editingSectionShortcut;
+    document.querySelector("#field-index-query").value=""; drawFieldIndex();
+    document.querySelector(".personal-jump .shortcut-edit")?.focus({preventScroll:true});
+  });
+  edit.classList.add("shortcut-edit"); box.append(edit);
+  if (saved && editingSectionShortcut) box.append(action("Remove shortcut",()=>storeSectionShortcut(null)));
+  return box;
+}
+function storeSectionShortcut(row) {
+  const feedback=document.querySelector("#section-jump-feedback");
+  if (!saveCompanionSetting(shortcutKey(),row ? {id:row.id,label:row.label} : null)) {
+    feedback.textContent="Could not save the shortcut."; return;
+  }
+  editingSectionShortcut=false;
+  document.querySelector("#field-index-query").value=""; drawFieldIndex();
+  feedback.textContent=row ? "Shortcut saved." : "Shortcut removed.";
+  document.querySelector(".personal-jump button")?.focus({preventScroll:true});
+}
 function drawFieldIndex() {
   const list=document.querySelector("#field-index-results");
   if (!list) return;
@@ -194,16 +226,20 @@ function drawFieldIndex() {
   const candidates=pageLandmarks();
   const rows=candidates.filter(r=>match(r.label)).sort((a,b)=>Number(!!b.major)-Number(!!a.major));
   const seen=new Set();
+  const personal=tab!=="guide" && tab!=="cheats";
+  const saved=personal && !editingSectionShortcut ? readCompanionSetting(shortcutKey(),null) : null;
   const unique=rows.filter(row=>{
+    if (!text && row.id===saved?.id && row.label===saved.label) return false;
     const key=row.node ? row.label : row.id;
     return !seen.has(key) && seen.add(key);
   });
   list.replaceChildren();
+  if (personal) list.append(sectionShortcutControls(candidates));
   const tools=availableShellTools(shellCurrent);
   const related=sectionRelations(tab).map(id=>tools.find(r=>r.tab===id)).filter(Boolean)
     .filter(r=>match(r.name+" "+r.detail));
   const preferred=[];
-  if (!text) {
+  if (!text && !editingSectionShortcut) {
     for (const title of preferredLandmarks[tab] || []) {
       const row=unique.find(r=>r.label===title || r.node?.tagName==="SUMMARY" && r.label.startsWith(title+" "));
       if (row && !preferred.includes(row)) preferred.push(row);
@@ -215,38 +251,43 @@ function drawFieldIndex() {
     }
   }
   const rest=unique.filter(r=>!preferred.includes(r));
-  if (related.length) {
+  if (related.length && !editingSectionShortcut) {
     const links=element("div","related-links");
     for (const tool of related) links.append(action(tool.name,()=>openShellDestination(tool)));
     list.append(element("h3","","Related tools"),links);
   }
-  list.append(element("h3","",tab==="guide" && guideReady ? "Walkthrough sections" : "On this screen"));
+  list.append(element("h3","",editingSectionShortcut ? "Choose your shortcut" : tab==="guide" && guideReady ? "Walkthrough sections" : "On this screen"));
   const resultBox=element("div","section-links");
   let offset=0;
   const more=action("More results",()=>append(true));
   function append(focus) {
     const start=offset;
-    for (const row of rest.slice(start,start+18)) resultBox.append(action(row.label,()=>jumpLandmark(row.id)));
+    for (const row of rest.slice(start,start+18)) resultBox.append(action(row.label,()=>{
+      if (editingSectionShortcut) storeSectionShortcut(row); else jumpLandmark(row.id);
+    }));
     offset=resultBox.children.length;
     more.hidden=offset>=rest.length;
     if (focus) resultBox.children[start]?.focus({preventScroll:true});
   }
   append(false);
   list.append(resultBox,more);
-  if (!unique.length) list.append(element("p","field-note",text ? "No matching entry on this screen." : "The current view has no additional entries."));
+  if (!unique.length && (text || !saved)) list.append(element("p","field-note",text ? "No matching entry on this screen." : "The current view has no additional entries."));
 }
 function openFieldIndex() {
+  editingSectionShortcut=false;
   dialogPage="index";
   dialogHeader("Page index");
+  shellDialog.querySelector(".dialog-heading button").before(action("All tools",openToolLibrary));
   const input=element("input","workspace-search");
   input.id="field-index-query"; input.type="search"; input.placeholder="Find a section or control";
   input.setAttribute("aria-label","Find on this page");
   const list=element("div","tool-sections"); list.id="field-index-results";
-  shellDialog.append(input,list);
+  const feedback=element("p","field-note"); feedback.id="section-jump-feedback"; feedback.setAttribute("role","status");
+  shellDialog.append(input,feedback,list);
   input.addEventListener("input",drawFieldIndex);
   drawFieldIndex();
   if (!shellDialog.open) shellDialog.showModal();
-  shellDialog.querySelector(".dialog-heading button").focus({preventScroll:true});
+  shellDialog.querySelector(".dialog-heading button:last-child").focus({preventScroll:true});
 }
 function initFieldIndex() {
   document.getElementById("section-index").addEventListener("click",openFieldIndex);

@@ -43,6 +43,12 @@ For the capture atlas, checkpoint journal, substitute comparisons, dressphere ma
 python tools/test-field-index.py --ffx-frame bevelle.json --x2-frame chapter5.json
 ```
 
+The 1.45 browser suite exercises both games, the five-chapter review, Sphere Break practice, primer ownership changes, walkthrough bookmarks and full-width navigation. Add `--section-audit sections.json` to exercise a saved shortcut in every available ordinary tool that uses the page index.
+
+```sh
+python tools/test-field-tools.py --ffx-frame bevelle.json --x2-frame chapter5.json
+```
+
 GitHub Actions runs the JavaScript suite and two browser suites with built-in fixtures on pull requests and pushes to `main`. [Companion tests](https://github.com/BaileyPillon/spira-companion-releases/actions/workflows/tests.yml)
 
 ## Icon artwork

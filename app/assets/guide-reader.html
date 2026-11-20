@@ -15,13 +15,16 @@
   let idle;
   let queued;
   let navigationId;
+  let readingSections=[];
   let resizeAnchor;
   // Any real scroll gesture gives the reader time to finish the paragraph.
   function reading() {
+    resizeAnchor=null;
     report("reading");
     clearTimeout(idle);
     idle = setTimeout(() => report("idle"), 3200);
   }
+  window.addEventListener("pointerdown",()=>{resizeAnchor=null;},{passive:true});
   window.addEventListener("wheel", reading, {passive:true});
   window.addEventListener("touchmove", reading, {passive:true});
   document.addEventListener("keydown", event => {
@@ -56,6 +59,26 @@
   }
   window.addEventListener("message", event => {
     if (event.source !== window.parent) return;
+    if (event.data?.command === "restore-position") {
+      const saved=resizeAnchor;
+      if (saved) {
+        restoreReadingPosition();
+        requestAnimationFrame(restoreReadingPosition);
+        setTimeout(()=>{if(resizeAnchor===saved) resizeAnchor=null;},1000);
+      }
+    }
+    if (event.data?.command === "bookmark-section") {
+      restoreReadingPosition();
+      // Resolve after scrolling and font-size changes, at the line the reader sees.
+      const threshold=Math.min(64,innerHeight/3);
+      let id="contents";
+      for (const section of readingSections) {
+        if (!section.target.getClientRects().length) continue;
+        if (section.target.getBoundingClientRect().top>threshold) break;
+        id=section.id;
+      }
+      window.parent.postMessage({kind:"bookmark",id},"*");
+    }
     if (event.data?.command === "reading-black") document.documentElement.toggleAttribute("data-reading-black",event.data.anchor === true);
     if (event.data?.command === "reading-size" && [90,100,120,140,160,200].includes(event.data.anchor)) {
       const scale = event.data.anchor;
@@ -83,17 +106,21 @@
       const range = document.caretRangeFromPoint(left + 26, 32);
       const caret = range?.getBoundingClientRect();
       const element = document.elementFromPoint(left + 26, 32);
-      const target = caret && Math.abs(caret.top - 32) < 36 ? range : element?.closest("p, h1, h2, h3, li, img");
+      const jumped=navigationId && document.getElementById(navigationId);
+      const heading=jumped?.classList.contains("offline-chapter") ? jumped.closest("article")?.querySelector("h1") : jumped;
+      const nearTop=heading && Math.abs(heading.getBoundingClientRect().top-14)<8;
+      const target = nearTop ? heading : caret && Math.abs(caret.top - 32) < 36 ? range : element?.closest("p, h1, h2, h3, li, img");
       resizeAnchor = target ? {target, top:target.getBoundingClientRect().top} : null;
       report("position-ready");
     }
   });
-  window.addEventListener("resize", () => {
+  function restoreReadingPosition() {
     if (!resizeAnchor) return;
-    const {target, top} = resizeAnchor;
-    resizeAnchor = null;
-    window.scrollBy({top:target.getBoundingClientRect().top - top, behavior:"instant"});
-  });
+    const {target,top}=resizeAnchor;
+    const delta=target.getBoundingClientRect().top-top;
+    if (Math.abs(delta)>1) window.scrollBy({top:delta,behavior:"instant"});
+  }
+  window.addEventListener("resize",restoreReadingPosition);
   const contents = document.getElementById("contents");
   if (contents) {
     const source = document.createElement("p");
@@ -109,6 +136,14 @@
       const name = link.textContent.replace(/\s+/g," ").trim();
       if (name && !sections.has(id) && document.getElementById(id)) sections.set(id,name.slice(0,200));
     }
+    // The export links only a fraction of its room, map and boss headings from its contents.
+    const headings = document.querySelectorAll('article :is(h1,h2,h3,h4,.card-header,.alert-heading,.offline-chapter)[id^="page-"]');
+    for (const node of headings) {
+      if (sections.has(node.id)) continue;
+      const title=node.classList.contains("offline-chapter") ? node.closest("article")?.querySelector("h1") : node;
+      const name=title?.textContent.replace(/\s+/g," ").trim();
+      if (name) sections.set(node.id,name.slice(0,200));
+    }
     const titleCounts = new Map();
     for (const name of sections.values()) titleCounts.set(name,(titleCounts.get(name) || 0) + 1);
     const rows = [...sections].slice(0,2500).map(([id,name]) => {
@@ -116,6 +151,12 @@
       const chapter = document.getElementById(id).closest("article")?.querySelector("h1")?.textContent.trim();
       return [id,(name + " · " + (chapter && chapter !== name ? chapter : id.replace(/^page-/,"Section "))).slice(0,200)];
     });
+    const headingIds=new Set([...headings].map(node=>node.id));
+    readingSections=rows.filter(([id])=>headingIds.has(id) || !headings.length).map(([id])=>{
+      const node=document.getElementById(id);
+      return {id,target:node.classList.contains("offline-chapter") ? node.closest("article")?.querySelector("h1") || node : node};
+    }).sort((a,b)=>a.target===b.target ? 0 :
+      a.target.compareDocumentPosition(b.target) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1);
     window.parent.postMessage({kind:"index",rows}, "*");
     report("ready");
   }

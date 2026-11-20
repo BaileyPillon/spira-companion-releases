@@ -13,15 +13,16 @@
 
 *Zanarkand Cloister, captured on the Thor. The gold dot follows Tidus as you move.* [Game screen](docs/images/zanarkand-top.webp) · [Companion screen](docs/images/zanarkand-guide.webp)
 
-## What’s new in 1.44.0
+## What’s new in 1.45.0
 
 | While playing | Open this on the lower screen |
 | --- | --- |
-| You have time to finish one Arena region | **Monster Arena → Capture atlas** ranks regions by remaining catches. Tap a missing fiend for its hunting spots. |
-| You’re deciding who to train or recruit | In **FFX-2 Equipment**, compare dressphere mastery across all three characters. In **FFX Blitzball**, try a substitute and compare the stats for that position. |
-| You’re coming back to a save | **Journal** keeps your checkpoint note and last 24 area changes. **Page index** finds a section in the current tool or imported guide, and **Back** returns to your place. |
+| Your FFX-2 completion run is missing something | **Chapter Checklist → Chapter review** compares all five chapters. Open one to see the destinations with unrecorded scenes. |
+| You’re hunting a primer in FFX | **Collections → Al Bhed Primers** shows all 26 volumes, one-time pickups and the letters your save can translate. |
+| Sphere Break’s timer is getting in the way | **Challenges → Sphere Break** lets you practice with an example or your own board. Tap coins, ask for a hint or undo a move. |
+| You keep losing your place on the lower screen | Bookmark a room or boss in the imported walkthrough. In other tools, save a personal page shortcut or use **Focus** for more room. |
 
-[See the four screens](docs/images/field-index-1.44.webp) · [Changes by section](docs/research-1.44.md) · [Release history](https://github.com/BaileyPillon/spira-companion-releases/releases)
+[See the four screens](docs/images/field-tools-1.45.webp) · [Research and changes by section](docs/research-1.45.md) · [Capture atlas, journal and mastery boards in 1.44](docs/research-1.44.md) · [Release history](https://github.com/BaileyPillon/spira-companion-releases/releases)
 
 ## Set up your Thor
 

@@ -10,7 +10,7 @@ function detailKey(details) {
   return details.dataset.detailKey || details.querySelector("summary")?.textContent;
 }
 function rememberExpansionUi() {
-  if (panel.dataset.page !== tab || !(tab.startsWith("plan-") || ["workspace","planner","grid","grid-lab","mix","equip","battle-lab","trials","blitzball","chapter-checklist","arena","journal"].includes(tab))) return null;
+  if (panel.dataset.page !== tab || !(tab.startsWith("plan-") || ["workspace","planner","grid","grid-lab","mix","equip","battle-lab","trials","blitzball","chapter-checklist","arena","journal","collections","challenges"].includes(tab))) return null;
   const focused = panel.contains(document.activeElement) ? document.activeElement : null;
   return {
     scroll: panel.scrollTop,

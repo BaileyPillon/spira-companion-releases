@@ -30,6 +30,42 @@ function chapterDestinations(scenes, chapter, conditional) {
   })).sort((a,b) => Number(a.recorded === a.flags.length) - Number(b.recorded === b.flags.length) || a.name.localeCompare(b.name));
 }
 
+let reviewBranches = false;
+
+function chapterReviewRows(scenes,withBranches) {
+  return [1,2,3,4,5].map(chapter=>{
+    const rows=scenes.filter(scene=>scene.chapter===chapter && (withBranches || !scene.conditional));
+    const checks=x2GroupSceneChecks(rows);
+    return {chapter,total:checks.length,recorded:checks.filter(group=>group.done).length};
+  });
+}
+
+function showChapterReview(current,scenes,openChapter) {
+  const section=element("section","chapter-review");
+  section.append(element("h2","","Chapter review"));
+  const filter=element("label","goal-choice");
+  const check=element("input"); check.type="checkbox"; check.checked=reviewBranches;
+  filter.append(check,document.createTextNode("Count conditional scenes"));
+  const list=element("div","chapter-timeline");
+  const caption=element("p","field-note","A scene check can use several save flags. Tap a chapter to see its unfinished destinations.");
+  section.append(filter,list,caption);
+  const draw=()=>{
+    list.replaceChildren();
+    for (const row of chapterReviewRows(scenes,reviewBranches)) {
+      const gap=row.total-row.recorded;
+      const status=row.chapter>current.chapter ? "Later chapter" : gap ? gap+" to review" : "All recorded";
+      const btn=action("",()=>openChapter(row.chapter,reviewBranches));
+      if (row.chapter===current.chapter) btn.setAttribute("aria-current","step");
+      btn.setAttribute("aria-label","Review Chapter "+row.chapter+" · "+row.recorded+" of "+row.total+" recorded · "+status);
+      const meter=element("progress"); meter.max=row.total || 1; meter.value=row.recorded; meter.setAttribute("aria-hidden","true");
+      btn.append(element("strong","","Ch. "+row.chapter),element("span","",row.recorded+" / "+row.total),meter,element("small","",status));
+      list.append(btn);
+    }
+  };
+  check.addEventListener("change",()=>{reviewBranches=check.checked; draw();});
+  draw(); panel.append(section);
+}
+
 function showChapterBoard(current,scenes) {
   const board = element("details","chapter-board");
   board.open = x2Board.open;
@@ -62,6 +98,12 @@ function showChapterBoard(current,scenes) {
   tools.append(chapter,label,pendingLabel);
   const body = element("div","destination-body");
   board.append(tools,body);
+  showChapterReview(current,scenes,(n,includeBranches)=>{
+    x2Board.chapter=n; x2Board.place=null; x2Board.conditional=includeBranches; x2Board.pending=true;
+    chapter.value=String(n); conditional.checked=includeBranches; pending.checked=true;
+    x2Board.open=true; board.open=true; draw();
+    summary.focus({preventScroll:true}); board.scrollIntoView({block:"start"});
+  });
   panel.append(board);
   function draw(focus = false) {
     const chosen = x2Board.chapter || current.chapter;

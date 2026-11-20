@@ -169,6 +169,10 @@ function showCollections(current) {
       drawCompletionGoals(current, overview, sheet, drawRows);
       return;
     }
+    if (collectionGroup === "primers" && !Number.isInteger(current.progress.primers)) {
+      sheet.append(entry("Waiting for primer records"));
+      return;
+    }
     const records = ffxCollection(current, collectionGroup);
     if (!records.length) {
       sheet.append(entry("Waiting for collection data"));
@@ -185,6 +189,7 @@ function showCollections(current) {
     const title = element("div", "collection-total");
     title.append(element("strong", "", label), element("span", "", `${done} / ${records.length} ${units[collectionGroup]}`));
     overview.append(title, progress);
+    if (collectionGroup === "primers") { showPrimerShelf(current,records,overview,sheet); return; }
     if (collectionGroup === "spheres") {
       const milestones = ["Shooting Star", "Banishing Blade", "Tornado"];
       const next = [1,3,10].findIndex(target => done < target);
