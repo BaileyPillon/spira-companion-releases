@@ -21,7 +21,7 @@ const catalog = {
       128:"Besaid Village · Night", 133:"Besaid · Shop", 135:"Besaid · Great Hall", 137:"Besaid · Monks’ Chamber",
       190:"Besaid · Cave", 192:"Besaid · Waterfall Way", 253:"Besaid · Port",
       179:"Floating Ruins · Spire", 184:"Luca · Stadium Passage", 185:"Luca · Docks", 206:"Celsius · Deck", 210:"Floating Ruins", 221:"Road to the Farplane",
-      259:"Celsius · Corridor", 311:"Luca · Stadium"},
+      249:"Thunder Plains · New Cave", 259:"Celsius · Corridor", 311:"Luca · Stadium"},
     recovery: ["Potion", "Hi-Potion", "X-Potion", "Mega Potion", "Ether", "Turbo Ether", "Phoenix Down",
       "Mega Phoenix", "Elixir", "Megalixir", "Antidote", "Soft", "Eye Drops", "Echo Screen", "Holy Water", "Remedy"],
     jobs: {20481:"Gunner", 20482:"Gun Mage", 20483:"Alchemist", 20484:"Warrior", 20485:"Samurai",

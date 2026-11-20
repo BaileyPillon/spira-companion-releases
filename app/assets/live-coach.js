@@ -92,8 +92,9 @@ function coachActions(current, focus = coachFocus) {
         `${advice.stock} in stock. ${targets.map(([name,reason]) => `${name}: ${reason}`).join(" · ")}.`,
         "Show recovery options", () => coachSection(".battle-tactics"), critical ? 110 : hurt ? 100 : 65, "battle");
     }
-    if (bossTip) add(`boss-${bossId}`, bossTip[0], bossTip[1], bossTip[0] === "Mix Sunburst" ? "Open Sunburst recipe" : "Show fight details",
-      () => bossTip[0] === "Mix Sunburst" ? choose("mix","Sunburst") : coachSection(".encounter-guide"),
+    const phaseFight = bossId === 130 || bossId === 142;
+    if (bossTip) add(`boss-${bossId}`, bossTip[0], bossTip[1], bossTip[0] === "Mix Sunburst" ? "Open Sunburst recipe" : phaseFight ? "Open story boss coach" : "Show fight details",
+      () => bossTip[0] === "Mix Sunburst" ? choose("mix","Sunburst") : phaseFight ? openLiveBossCoach() : coachSection(".encounter-guide"),
       bossTip[0] === "Use an Al Bhed Potion" ? 115 : bossId === 130 ? 105 : 90, "battle");
     if (current.grid && hasCaptureData(current)) {
       const target = huntBattleTargets(current)[0];
@@ -141,6 +142,8 @@ function coachActions(current, focus = coachFocus) {
     }
   }
   if (current.game === "x2" && current.chapter) {
+    if (current.disc === "SLUS-20672" && current.chapter === 5 && current.room === 249)
+      add("new-cave-walls","Solve the next wall","Use your earlier codes and both on-screen clues.","Open wall solver",() => choose("plan-walls"),76,"completion");
     if(typeof x2SceneAudit==="function"&&[206,259].includes(current.room)){
       const rows=x2SceneAudit(current)?.filter(scene=>!scene.conditional&&scene.chapter===current.chapter);
       const pending=rows&&x2GroupSceneChecks(rows).filter(scene=>!scene.done);

@@ -311,6 +311,12 @@ function drawReserves(current, view) {
     );
 }
 function drawXFieldPlan(current, id, view) {
+  if (id === "phase" || id === "remiem") {
+    if (current.disc !== "SLPS-25088") view.list.append(entry("Load Final Fantasy X International on PS2"));
+    else if (id === "phase") drawPhaseCoach(current, view);
+    else drawRemiemRace(current, view);
+    return;
+  }
   if (id === "accuracy" || id === "celestial") {
     if (current.disc !== "SLPS-25088") view.list.append(entry("Load Final Fantasy X International on PS2"));
     else if (id === "accuracy") drawBossOdds(current, view);

@@ -111,6 +111,10 @@ function evraeAdvice(current, foe) {
 }
 
 function ffxBossAdvice(current, foe) {
+  if ((foe.id === 130 || foe.id === 142) && typeof phasePriority === "function") {
+    const priority = phasePriority(current, foe.id === 130 ? "yunalesca" : "flux", foe);
+    if (priority) return priority;
+  }
   const active = current.party.filter(member => member.active && member.hp > 0);
   switch (foe.id) {
     case 119: return evraeAdvice(current, foe);
@@ -157,6 +161,9 @@ function showStoryHint(current, host = panel, compact = false) {
       box.append(action("Sunburst recipes", () => choose("mix", "Sunburst")));
     }
     if (current.grid && id === 119) box.append(action("Evrae armor plan", () => openPrep("evrae")));
+    if (current.disc === "SLPS-25088" && (id === 130 || id === 142)) {
+      box.append(action("Story boss coach", openLiveBossCoach));
+    }
     host.append(box);
     return;
   }

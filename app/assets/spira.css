@@ -524,3 +524,18 @@ code { color: var(--text); overflow-wrap: anywhere; }
 .odds-bars label, .power-bands label { display: grid; grid-template-columns: 4.5rem minmax(1rem, 1fr) 3.3rem; gap: 8px; align-items: center; }
 .odds-bars progress, .power-bands progress { accent-color: var(--accent); width: 100%; height: 8px; }
 .odds-bars span, .power-bands span { text-align: right; color: var(--text); font-variant-numeric: tabular-nums; }
+.race-route, .wall-records { margin: 0; padding: 10px 12px; list-style: none; }
+.race-route li { padding: 5px 0 8px; border-top: 1px solid var(--line); }
+.race-route p { margin: 4px 0; max-width: 66ch; }
+.race-route .action[aria-current="step"] { background: var(--accent); color: var(--bg); }
+.race-landmarks { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 0 12px; }
+.race-landmarks .action { min-width: 40px; padding: 0 8px; }
+.race-landmarks .action[aria-current="step"] { background: var(--accent); color: var(--bg); }
+.race-landmarks .action:focus-visible { outline-offset: 1px; }
+.wall-records, .cave-fields { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,155px),1fr)); gap: 8px; }
+.wall-records .action { width: 100%; font-variant-numeric: tabular-nums; }
+.cave-fields .plan-field { min-width: 0; margin: 5px 0; }
+.cave-fields input, .cave-fields select { width: 100%; min-width: 0; min-height: 44px; font: inherit; }
+.cave-fields input { background: var(--panel); border: 1px solid var(--line); color: var(--text); padding: 6px 9px; border-radius: 4px; }
+.cave-code { display: block; margin: 10px 0; color: var(--accent); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.notebook-results .planner-config > .action { margin: 5px 5px 8px 0; }

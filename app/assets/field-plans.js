@@ -2,6 +2,9 @@
 
 // Secondary tools share the existing Workspace navigation and profile storage.
 const fieldPlans = [
+  ["phase", "Story boss coach", "prep", "x", "Follow Yunalesca’s forms and Seymour Flux’s attack pattern with your front line and supplies in view."],
+  ["remiem", "Remiem race navigator", "challenges", "x", "Choose a prize and follow the route to the center of the temple course."],
+  ["walls", "Thunder Plains wall solver", "challenges", "x2", "Combine both clues, reuse earlier codes and keep your place through both cave clears."],
   ["accuracy", "Boss hit planner", "prep", "x", "Check your party’s normal Attack against a Dark Aeon or Penance and see how much Luck or Aim closes the gap."],
   ["mascot", "Mascot episode board", "chapter-checklist", "x2", "Track the Chapter 5 result at each destination and compare it with scenes in your save."],
   ["celestial", "Celestial weapon power", "equip", "x", "See how each character’s current HP or MP changes physical weapon damage."],
@@ -84,6 +87,9 @@ function fieldPlanFor(tabName) {
 }
 function fieldPlanSignature(id, current) {
   const base = [current.game, current.disc, current.crc, !!current.grid, reconnecting, !!current.paused];
+  if (id === "phase") return [...base, current.battle, current.enemies, current.turnOrder, current.items, current.party?.map(m => [m.id,m.name,m.active,m.hp,m.statusBits,m.statusTimed,m.gear?.filter(g => g.equipped)])];
+  if (id === "remiem") return [...base, current.room, current.progress?.keyItems];
+  if (id === "walls") return [...base, current.room, current.chapter];
   if (id === "accuracy") return [...base, current.party?.map(m => [m.id, m.attributes]), current.enemies?.map(e => [e.id, e.hp > 0])];
   if (id === "celestial") return [...base, current.battle, current.party?.map(m => [m.id, m.active, m.hp, m.maxHp, m.mp, m.maxMp, m.gear?.filter(g => g.celestial)])];
   if (id === "mascot") return [...base, current.chapter, current.storyFlags, current.loadout?.dresspheres, current.calmLands?.argent, current.calmLands?.openAir];

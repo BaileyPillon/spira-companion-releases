@@ -4,6 +4,10 @@
 
 ## Final Fantasy X
 
+**Stuck on Yunalesca or Seymour Flux?** Open **Boss Prep → Story boss coach** or tap the coach during the encounter. Follow the current fight to see your front line and recovery stock. For Yunalesca, watch who still has Zombie or Deathproof when her second HP bar runs out. For Flux, look for the charge message on the game screen and check the turn order before summoning.
+
+**Racing at Remiem?** Open **Challenges → Remiem race navigator**. Win once for the Cloudy Mirror. On later runs, pick the prize before mounting and read the entire route or tap a landmark to bring up one turn at a time. The letters identify chests in the companion. Mark the prize after the game awards it.
+
 **Before grinding Luck**, open **Boss Prep → Boss hit planner**. Pick the boss or one of Penance’s arms, then choose your hit goal and Aim stacks. Each party member gets a normal Attack forecast and the additional Luck needed. **Equip → Celestial weapon power** shows the current weapon multiplier. For example, healing Tidus strengthens Caladbolg, while healing Auron weakens Masamune. In battle, **Battle comparison** estimates damage on your selected target.
 
 **Plan a farming session.** In **Arena → Capture circuit**, choose a catch goal to see up to three complementary hunting spots. In **Equip → Customization shopping list**, select an ability and the number of pieces you want. For example, three Auto-Haste pieces need 240 Chocobo Wings in total. Craft in batches as you collect them. **Bestiary → Bribe shopping comparison** prices the next inventory target across eligible fiends. **Items → Farming ledger** records your starting inventory and gil so you can see the net change.
@@ -32,6 +36,8 @@ The original HTML export is 40,660,758 bytes. Its SHA-256 checksum is `5cf7b6425
 | You’re playing Blitzball or chasing a sigil | **Blitzball** covers rosters, contracts, Techcopy, Wakka’s prizes and live matches. **Challenges** tracks Catcher Chocobo, Butterfly Catcher, lightning records and the current Cactuar clue. Start a fresh lightning streak at zero to use the estimate. |
 
 ## Final Fantasy X-2
+
+**Inside the Thunder Plains New Cave?** After rescuing Cid, open **Challenges → Thunder Plains wall solver**. At the entrance, copy the first lower-right clue. At the target wall, add its upper-left clue. Before you leave, put the new lower-right clue in **Carry clue**. For a compound clue, enter the numbers joined by + or tap **Insert an earlier code or encounter count**. If it asks for an interval, enter the cumulative totals at the two indicated walls. Confirm after the wall opens. Select **Second puzzle clear** on your return for Force of Nature.
 
 **Hunting Mascot?** Open **Chapter Checklist → Mascot episode board**. After a regional ending, copy the result from the Celsius destination map. Filter to **Episode Concluded** to see the regions you need to revisit when planning your next run. Use a separate companion profile for a new run. The scene evidence and inventory checks follow the loaded save.
 

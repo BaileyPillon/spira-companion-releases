@@ -12,6 +12,10 @@ function guideSuggestionsFor(current, lightningActivity = null) {
   const add = (key, text, label, open, priority = guidePriority.extra, wait = 900) =>
     suggestions.push({key,text,label,open,priority,wait});
   const progress = current.progress;
+  if (!current.battle && current.room === 290) {
+    add("remiem-race", "Racing for a mirror or a chest prize? Your route is ready.", "Open race navigator",
+      () => choose("plan-remiem"), guidePriority.activity);
+  }
   const atBlitzMenu = !current.battle && blitzballMenuRooms.has(current.room);
   const watched = !current.battle && progress?.blitzball?.players &&
     blitzWatchOpportunity(progress.blitzball.players, (player, [team]) => atBlitzMenu ||
@@ -52,6 +56,9 @@ function guideSuggestionsFor(current, lightningActivity = null) {
       if (advice?.[0] === "Mix Sunburst") {
         add("sunburst", "Rikku can Mix Sunburst with items you have.",
           "Show recipe", () => choose("mix", "Sunburst"), guidePriority.timely);
+      } else if (id === 130 || id === 142) {
+        add(`boss-${id}`, advice?.[0] || "Check your front line", "Open story boss coach",
+          () => openLiveBossCoach(), guidePriority.activity);
       } else {
         add(`boss-${id}`, advice?.[0] || `Battle tips for ${enemyName(id)}`,
           "Open battle tips", () => choose("status"), guidePriority.activity);

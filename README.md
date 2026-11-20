@@ -13,7 +13,7 @@
 
 *Zanarkand Cloister, captured on the Thor. The gold dot follows Tidus as you move.* [Game screen](docs/images/zanarkand-top.webp) · [Companion screen](docs/images/zanarkand-guide.webp)
 
-**New in 1.40.** Before farming another Luck Sphere, check what your current party needs to hit Dark Mindy. See what a heal does to Caladbolg or Masamune. In FFX-2, keep track of all 15 regional endings for Mascot and record both Besaid door codes as you find them. [Four new tools and the player discussions behind them](docs/research-1.40.md)
+**New in 1.41.** See who can survive Yunalesca’s next Mega Death, pick the Remiem race route that gives the prize you want, or carry a clue from one Thunder Plains cave wall to the next in FFX-2. [Three player requests and how the new tools work](docs/research-1.41.md)
 
 ## Set up your Thor
 

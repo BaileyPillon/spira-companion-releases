@@ -538,6 +538,8 @@ function render() {
     const fieldSummary = element("div", "status-field-summary");
     if (!current.battle) {
       fieldSummary.append(statList(current));
+      if (current.disc === "SLPS-25088" && current.room === 290)
+        fieldSummary.append(action("Remiem race navigator", () => choose("plan-remiem")));
       if (hasCaptureData(current) && (current.room === 307 ||
           localHuntSpots(current.room).length && captureRoster(current).length)) {
         fieldSummary.append(action("Scout fiends", () => openArenaHunt()));
@@ -546,6 +548,8 @@ function render() {
     if (!current.battle && current.game === "x2" && current.chapter) {
       const tools = element("div", "filters");
       tools.append(action("Check Chapter " + current.chapter, () => openX2ChapterChecklist()));
+      if (current.disc === "SLUS-20672" && current.chapter === 5 && current.room === 249)
+        tools.append(action("Thunder Plains wall solver", () => choose("plan-walls")));
       if (current.disc === "SLUS-20672" && /^Besaid\b/i.test(roomName(current)))
         tools.append(action("Besaid cipher notebook", () => choose("plan-ciphers")));
       if (oversoul) tools.append(action("Track Oversouls", () => openX2FieldGuide("oversoul")));
