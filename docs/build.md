@@ -37,6 +37,14 @@ For the 1.39 gameplay fixes, run `python tools/test-review-fixes-ui.py` with the
 
 For the boss forecasts, Mascot board and Besaid doors, run `python tools/test-boss-routes-ui.py`. It exercises all four tools at three viewport widths. Pass `--ffx-frame`, `--x2-frame` or `--screenshots <directory>` to replay saved frames or inspect the interface.
 
+For the capture atlas, checkpoint journal, substitute comparisons, dressphere mastery and page index, replay a recorded JSON frame from each supported game through the release suite. Add `--guide <path>` to include the compatible offline walkthrough. The [1.44 validation notes](../THOR-VALIDATION.md) describe the frames used for the release.
+
+```sh
+python tools/test-field-index.py --ffx-frame bevelle.json --x2-frame chapter5.json
+```
+
+GitHub Actions runs the JavaScript suite and two browser suites with built-in fixtures on pull requests and pushes to `main`. [Companion tests](https://github.com/BaileyPillon/spira-companion-releases/actions/workflows/tests.yml)
+
 ## Icon artwork
 
 The [Yuna portrait](images/spira-companion.png) is the source image for the GitHub README, Android launcher and companion header. From the repository root, run `pwsh -File tools/export-icon.ps1` with FFmpeg on your PATH to regenerate the bundled WebP images. Both Android launcher modes use the same crop. The themed version preserves the staff petals and facial features in the alpha channel so the launcher can tint them.

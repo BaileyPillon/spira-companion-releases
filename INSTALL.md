@@ -1,10 +1,13 @@
 # Spira Companion on AYN Thor
 
-Install **SpiraCompanion.apk**. In **ARMSX2 → Settings**, search for **Enable PINE** and turn it on. Leave the port at **28011**. Start a supported PS2 disc in ARMSX2. In Cocoon, edit its game entry, choose **Spira Companion** under **Companion App**, and save with the check mark. The game opens on the top screen and the companion opens on the bottom screen.
+1. Download and install the [Android APK](https://github.com/BaileyPillon/spira-companion-releases/releases/latest/download/SpiraCompanion.apk) on the Thor.
+2. In **ARMSX2 → Settings**, search for **Enable PINE**, turn it on and leave the port at **28011**.
+3. In **Cocoon**, edit the entry for your [supported PS2 disc](README.md#supported-ps2-versions), choose **Spira Companion** under **Companion App** and save with the check mark.
+4. Launch the game from Cocoon and load a save. Open **Status** on the lower screen and look for **Live**.
 
-The companion connects to ARMSX2's local listener at **127.0.0.1:28011**. Live tracking uses read commands. Once set up, it works on the handheld without USB or a PC. Optional Cheats, including AP sharing in 1.37, use separately guarded writes and are hidden by default.
+The companion connects to ARMSX2's local listener at **127.0.0.1:28011**. Live tracking uses read commands and runs on the handheld without USB or a PC. Optional cheats are hidden by default. You can enable them in Setup.
 
-**New tools in the 1.37 source build:** open **Workspace** to search, pin tools and keep playthrough notes. **Goal Plan** combines FFX goals and shared materials. Sphere Grid opens the editable sandbox; battle Status opens action comparisons. **Blitzball → Live match** reads the active match, and **Challenges** reads supported Butterfly/Catcher events. Profiles and JSON backups are under Workspace or Setup. See [coverage and pending gameplay acceptance](EXPANSION-1.37.md) before treating the new readers as device-verified.
+Open **All tools** to browse tools for the current game, **Page index** to jump within a tool and **Journal** to record your next objective. Profiles and JSON backups are under Workspace or Setup. The [player guide](docs/player-guide.md) explains each game’s tools. The [validation history](THOR-VALIDATION.md) lists device tests and capture replays by release.
 
 **Live Coach:** start on **Status**. The first recommendation combines the current situation with recorded inventory and progress. Urgent recovery and pickup deadlines take priority. Expand **Live coach** to select **Story**, **Arena captures**, **Blitzball**, or **Completion** as your FFX focus. **Hide this tip** dismisses that situation for the session; a new battle can raise the same warning again. Other relevant opportunities remain under an expandable list. Fight details remain available below the turn order without repeating the leading advice.
 

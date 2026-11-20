@@ -19,7 +19,7 @@ body:
     attributes:
       label: Spira Companion version
       description: Include the ARMSX2 version if you know it.
-      placeholder: Spira 1.38.1
+      placeholder: Spira version and ARMSX2 version
   - type: textarea
     id: observed
     attributes:

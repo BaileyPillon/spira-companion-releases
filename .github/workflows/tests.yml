@@ -1,0 +1,41 @@
+name: Companion tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  logic:
+    name: Game logic
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+      - run: node --test tests/*.test.cjs
+
+  interface:
+    name: Lower-screen interface
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Prepare browser tests
+        run: |
+          python3 -m venv "$RUNNER_TEMP/spira-tests"
+          "$RUNNER_TEMP/spira-tests/bin/pip" install playwright==1.64.0
+          echo "$RUNNER_TEMP/spira-tests/bin" >> "$GITHUB_PATH"
+      - name: Exercise both games with built-in fixtures
+        run: |
+          python tools/test-expansion-ui.py
+          python tools/test-display-ui.py
