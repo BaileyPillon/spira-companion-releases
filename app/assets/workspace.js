@@ -47,6 +47,8 @@ const workspaceTools = [
   ["grid-lab","Grid sandbox","Build and compare hypothetical Sphere Grid routes","x"],
   ["battle-lab","Battle comparison","Compare supported actions against your target","x"],
   ["status","Status","Live party, battle and story guidance"],
+  ["glance","Glance","Full-screen party vitals, current fight and field objective"],
+  ["workspace","Workspace","Search the companion and open saved pins"],
   ["guide","Guide","Offline FFX Jegged walkthrough"],
   ["supplies","Items","Inventory, recovery supplies and spheres"],
   ["equip","Equipment","Gear, accessories and abilities"],
@@ -164,14 +166,18 @@ function toggleWorkspacePin(row) {
   const next = index < 0 ? [...workspacePins,row] : workspacePins.filter((_,i)=>i!==index);
   if (next.length > 40) return false;
   if (!saveCompanionSetting("spira.workspace.v1",next)) return false;
-  workspacePins=next;return true;
+  workspacePins=next;
+  if (typeof refreshShellPins === "function") refreshShellPins();
+  return true;
 }
 function promoteWorkspacePin(key) {
   const pin=workspacePins.find(item=>item.key===key);
   if(!pin)return false;
   const next=[pin,...workspacePins.filter(item=>item.key!==key)];
   if(!saveCompanionSetting("spira.workspace.v1",next))return false;
-  workspacePins=next;return true;
+  workspacePins=next;
+  if (typeof refreshShellPins === "function") refreshShellPins();
+  return true;
 }
 function openWorkspaceFromGuide() {
   guideDetour=true;guideHost.classList.add("guide-detour");clearGuideSuggestion();choose("workspace");

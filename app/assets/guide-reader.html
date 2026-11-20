@@ -6,6 +6,7 @@
   article > h1 { scroll-margin-top: 0; }
   a:focus-visible { outline: 2px solid #91e1cf; outline-offset: 2px; }
   .guide-source { margin: 0 0 15px; font-size: .86rem; color: #b8c2cf; }
+  html[data-reading-black], html[data-reading-black] :is(body, main, article) { background-color: black !important; }
 </style>
 <script>
 (() => {
@@ -55,6 +56,25 @@
   }
   window.addEventListener("message", event => {
     if (event.source !== window.parent) return;
+    if (event.data?.command === "reading-black") document.documentElement.toggleAttribute("data-reading-black",event.data.anchor === true);
+    if (event.data?.command === "reading-size" && [90,100,120,140,160,200].includes(event.data.anchor)) {
+      const scale = event.data.anchor;
+      if (document.documentElement.dataset.readingSize === String(scale)) return;
+      const y = Math.min(42,innerHeight / 2);
+      const hit = document.elementFromPoint(innerWidth / 2,y);
+      const section = hit?.closest("p,h1,h2,h3,h4,li,td,figure,img") ||
+        [...document.querySelectorAll("article, #contents")].find(node => {
+          const rect = node.getBoundingClientRect();
+          return rect.top <= y && rect.bottom > y;
+        });
+      const top = section?.getBoundingClientRect().top;
+      document.documentElement.dataset.readingSize = String(scale);
+      document.documentElement.style.zoom = scale / 100;
+      if (section) {
+        section.scrollIntoView({block:"start",behavior:"instant"});
+        window.scrollBy({top:section.getBoundingClientRect().top - top,behavior:"instant"});
+      }
+    }
     if (event.data?.command === "jump" && typeof event.data.anchor === "string") jump(event.data.anchor);
     if (event.data?.command === "remember-position") {
       const left = Math.max(0, document.querySelector("main").getBoundingClientRect().left);

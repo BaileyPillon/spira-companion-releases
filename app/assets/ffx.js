@@ -233,15 +233,18 @@ function battleEnemyName(current, foe) {
 
 const xAeons = ["Valefor", "Ifrit", "Ixion", "Shiva", "Bahamut", "Anima", "Yojimbo", "Cindy", "Sandy", "Mindy"];
 
+function xTurnName(current, id) {
+  const foe = current.enemies?.find(actor => actor.battleId === id);
+  return foe ? battleEnemyName(current,foe) :
+    catalog.x.party[id] || xAeons[id - 8] || (id >= 20 ? "Enemy " + (id - 19) : "Actor " + (id + 1));
+}
 function showXTurnOrder(current, scroll) {
   if (!current.turnOrder?.length) return;
   const section = element("section", "ctb");
   section.append(element("h2", "", "Turn order"));
   const turns = element("ol", "ctb-list");
   for (const [index, id] of current.turnOrder.entries()) {
-    const foe = current.enemies?.find(actor => actor.battleId === id);
-    const name = foe ? battleEnemyName(current, foe) :
-      catalog.x.party[id] || xAeons[id - 8] || (id >= 20 ? "Enemy " + (id - 19) : "Actor " + (id + 1));
+    const name = xTurnName(current,id);
     const row = element("li", id >= 20 && name !== "Cid" ? "ctb-enemy" : "");
     row.append(element("span", "ctb-number", index === 0 ? "Now" : String(index + 1)),
       element("span", "ctb-name", name));

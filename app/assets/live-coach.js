@@ -273,6 +273,9 @@ function updateLiveCoach(current) {
   observeCoachSession(current);
   if (!coachFollow) { coachFollower.reset(); return; }
   if (!current || current.paused) { abandonCoachReturn(); coachFollower.reset(); return; }
+  if (tab === "glance" || (typeof shellDialog !== "undefined" && (shellDialog.open || focusTab))) {
+    coachFollower.reset(); return;
+  }
   const event = coachFollower.update(current);
   if (event?.kind === "reset") { abandonCoachReturn(); return; }
   if (!event || !current) return;

@@ -2,6 +2,14 @@
 
 [Download and setup](../README.md#set-up-your-thor) · [Final Fantasy X](#final-fantasy-x) · [Final Fantasy X-2](#final-fantasy-x-2) · [Connection help](#connection-help)
 
+## Make the lower screen yours
+
+Open **Display** in the top bar. **Match the game** changes the menu when you switch games. Choose a fixed palette or **OLED black** to keep the appearance consistent. **Text size** applies to Spira and the imported FFX walkthrough. In a full-screen walkthrough, open **All tools → Display**.
+
+**All tools** searches the current game’s tools and shows your recent choices. Use **Pin** to add a tool to Workspace. Up to four pinned tools available in the current game appear in the short navigation menu. To restore the long menu, choose **Display → Navigation → Show all tabs**.
+
+Open **Glance** for the active party, current target and FFX turn order, or the next objective in the field. **Shade screen** covers the companion in black. Tap anywhere or press a key to wake it. Automatic shading applies only in Glance and defaults to manual. Use **Exit Glance** to return to your previous view. On Map, Sphere Grid, Grid sandbox, Cloister guide, Blitzball or Challenges, **Focus** hides the sidebar until you choose **Exit focus**.
+
 ## Final Fantasy X
 
 **Stuck on Yunalesca or Seymour Flux?** Open **Boss Prep → Story boss coach** or tap the coach during the encounter. Follow the current fight to see your front line and recovery stock. For Yunalesca, watch who still has Zombie or Deathproof when her second HP bar runs out. For Flux, look for the charge message on the game screen and check the turn order before summoning.

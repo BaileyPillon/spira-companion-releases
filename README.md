@@ -13,7 +13,9 @@
 
 *Zanarkand Cloister, captured on the Thor. The gold dot follows Tidus as you move.* [Game screen](docs/images/zanarkand-top.webp) · [Companion screen](docs/images/zanarkand-guide.webp)
 
-**New in 1.41.** See who can survive Yunalesca’s next Mega Death, pick the Remiem race route that gives the prize you want, or carry a clue from one Thunder Plains cave wall to the next in FFX-2. [Three player requests and how the new tools work](docs/research-1.41.md)
+**New in 1.42.** The menus change with the game. Open **Glance** for Evrae’s turn order or your Gullwings’ current dresspheres, pin a favorite tool to the short menu, or open **Display** to enlarge the text and choose OLED black. [Screenshots and the player feedback behind the update](docs/research-1.42.md)
+
+<img src="docs/images/glance-1.42.webp" width="960" alt="Glance during the Evrae fight in FFX and aboard the Celsius in FFX-2, replayed from Thor captures.">
 
 ## Set up your Thor
 

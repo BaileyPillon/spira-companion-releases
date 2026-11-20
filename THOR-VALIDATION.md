@@ -1,5 +1,11 @@
 # Thor validation
 
+For 1.42.0, all 79 UI assets extracted from the signed APK matched the checkout byte for byte. The packaged interface passed the display suite with the compatible offline guide, including text reflow deep in a chapter, and the 1.41 second-screen routes suite.
+
+**1.42.0** passed 158 JavaScript tests and 45 native reader and write-guard checks. Chrome exercised the display controls, game switch, pins, focus, Glance, shade/wake and guide return at 350 × 420, 620 × 465 and 900 × 675. The replay used the recorded Evrae opening and FFX-2 Chapter 5 party plus injected enemy, pause and timeout transitions. The reader test also loaded the supported 40,660,758-byte offline walkthrough using the sandboxed frame and message bridge.
+
+A separate overflow pass visited the 33 tools available in the FFX replay and the 24 in FFX-2 at both 100% and 200% text, at 350 and 620 pixels wide. It found a long heading that needed wrapping. An independent review caught a separate enemy-name collision within the panel. The narrow large-type layout now places the enemy name above its gauge. Fresh hardware gameplay and Android touch latency were not measured. [Visual research and screenshots](docs/research-1.42.md)
+
 All 74 files under `app/assets` matched the files extracted from the signed 1.41.0 APK byte for byte. The packaged interface reproduced all sixteen accepted codes in Kouli’s published PS2 cave run at each tested width, then reopened the independent second-clear record. [PS2 test case](https://gamefaqs.gamespot.com/ps2/562386-final-fantasy-x-2/faqs/26615)
 
 **1.41.0** passed 158 JavaScript tests and 45 native reader and write-guard checks. At 350, 620 and 900 pixels, Chrome exercised boss form changes and target swaps, Remiem prize selection and resume, and two independent cave notebooks with carried clues, interval calculations and zero-valued codes. Tests used synthetic fixtures and recorded Thor frames from Bevelle Highbridge and FFX-2 Chapter 5. Bosses, race rooms and puzzle inputs were injected. The legacy browser suites also passed, including the replay using the Evrae opening. No fresh hardware gameplay was recorded for these encounters. [Ranked research and limitations](docs/research-1.41.md)

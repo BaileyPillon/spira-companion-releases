@@ -34,7 +34,12 @@ with sync_playwright() as pw:
         def feed(frame):
             page.evaluate("(f) => Spira.update({...f,timestamp:Date.now()},false)", frame)
         def nav(tab):
-            page.locator(f'nav [data-tab="{tab}"]').click()
+            shortcut = page.locator(f'nav [data-tab="{tab}"]')
+            if shortcut.is_visible():
+                shortcut.click()
+            else:
+                page.get_by_role("button", name="All tools", exact=True).click()
+                page.locator(f'[data-shell-key="open-{tab}"]').click()
         def snapshot(name):
             main.evaluate("el => el.scrollTop = 0")
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")

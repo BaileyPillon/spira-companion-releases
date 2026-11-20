@@ -2,7 +2,7 @@
 
 const panel = document.querySelector("#panel");
 const connection = document.querySelector("#connection");
-const nav = [...document.querySelectorAll("nav button")];
+const nav = [...document.querySelectorAll("nav [data-tab]")];
 const number = new Intl.NumberFormat();
 const clock = new Intl.DateTimeFormat(undefined, {hour:"numeric", minute:"2-digit"});
 const states = {
@@ -75,8 +75,12 @@ function validFrame(next) {
 }
 
 function choose(nextTab, initialQuery = null, bribeTarget = null, itemSources = false) {
+  if (typeof visitShellTool === "function") visitShellTool(tab, nextTab, sample || (state === "live" ? frame : null));
   const plan = typeof fieldPlanFor === "function" && fieldPlanFor(nextTab);
-  if (plan && tab !== nextTab) fieldPlanOrigin = [...nav].some(button => button.dataset.tab === tab && !button.hidden) ? tab : "workspace";
+  if (plan && tab !== nextTab) {
+    fieldPlanOrigin = tab === "glance" && typeof glanceOrigin !== "undefined" && glanceOrigin.tab === nextTab ? glanceOrigin.parent :
+      nav.some(button => button.dataset.tab === tab && !button.hidden) ? tab : "workspace";
+  }
   if (typeof coachManualNavigation === "function") coachManualNavigation();
   if (nextTab === "missables") focusedMissable = initialQuery;
   returningToMix = nextTab === "bestiary" && tab === "mix" && initialQuery != null;
@@ -379,6 +383,7 @@ function render() {
   const visibleState = sample ? "sample" : state === "live" && frame.paused ? "paused" : state;
   showConnection(reconnecting ? "reconnecting" : visibleState);
   const current = sample || (state === "live" ? frame : null);
+  if (typeof syncDisplay === "function") syncDisplay(current);
   if (typeof updateGuide === "function") updateGuide(tab === "guide", sample ? null : current, reconnecting ? "reconnecting" : visibleState);
   panel.hidden = tab === "guide";
   const ffx = !!current?.grid;
@@ -386,6 +391,7 @@ function render() {
   const { timestamp, ...data } = current || {};
   const fieldPlan = typeof fieldPlanFor === "function" && fieldPlanFor(tab);
   let displayed = data;
+  if (tab === "glance") displayed = glanceSignature(current, reconnecting);
   if (fieldPlan && current) displayed = fieldPlanSignature(fieldPlan.id,current);
   const {fieldMap, fieldPlayer, fieldExits, loadout, storyFlags, dressphereAp, oversoul, ...statusData} = data;
   if (tab === "status") displayed = [reconnecting, statusData, oversoul, fieldMap, fieldExits,
@@ -449,7 +455,7 @@ function render() {
   if (ffx && tab === "bestiary" && bestiaryMode === "gear") displayed = [data.disc, data.arena, data.items, data.progress?.darkAeons,
     data.party.map(member => [member.id,member.gear]), data.enemies?.filter(foe => foe.hp > 0).map(foe => foe.id)];
   const panelState = tab === "map" && state === "live" ? "live" : visibleState;
-  const key = JSON.stringify([tab, panelState, displayed, frame?.game, folder, error, tab === "journal" ? visits : [],
+  const key = JSON.stringify([tab, panelState, displayed, frame?.game, ffx, hasMix, !!current?.disc, !!current?.progress, !!loadout, !!oversoul, !!current?.chapter, folder, error, tab === "journal" ? visits : [],
     typeof coachReturn === "undefined" ? null : coachReturn && [coachReturn.tab,coachReturn.fullscreen]]);
   if (key === signature) {
     if (tab === "mix" && hasMix) updateMix?.(current);
@@ -482,8 +488,10 @@ function render() {
     else button.removeAttribute("aria-current");
   }
   if (typeof rememberCoachUi === "function") rememberCoachUi();
+  if (typeof syncToolRail === "function") syncToolRail(current);
   panel.replaceChildren();
-  if (tab === "setup") setup();
+  if (tab === "glance") drawGlance(current, reconnecting ? "reconnecting" : visibleState);
+  else if (tab === "setup") setup();
   else if (tab === "profiles") showProfiles();
   else if (tab === "workspace") showWorkspace(current);
   else if (fieldPlan) showFieldPlan(current,fieldPlan);
@@ -621,5 +629,6 @@ function render() {
 }
 
 for (const button of nav) button.addEventListener("click", () => choose(button.dataset.tab));
+if (typeof initDisplay === "function") initDisplay();
 window.Spira = {update, setupError(message) { error = message; choose("setup"); }};
 render();

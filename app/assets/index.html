@@ -7,6 +7,7 @@
 <title>Spira Companion</title>
 <link rel="icon" type="image/webp" href="spira-icon.webp">
 <link rel="stylesheet" href="spira.css">
+<link rel="stylesheet" href="display.css">
 <script src="catalog.js" defer></script>
 <script src="ffx-data.js" defer></script>
 <script src="ffx-mix-data.js" defer></script>
@@ -73,16 +74,29 @@
   <script src="cloister-live.js" defer></script>
 <script src="butterfly-route-data.js" defer></script>
 <script src="butterfly-coach.js" defer></script>
+<script src="display.js" defer></script>
+<script src="glance.js" defer></script>
 <script src="spira.js" defer></script>
 </head>
 <body>
 <header>
   <div class="identity"><img src="spira-icon.webp" width="36" height="36" alt=""><span>Spira Companion</span></div>
-  <div id="connection" class="connection" role="status" data-state="waiting">Waiting</div>
+  <div class="shell-actions">
+    <div id="connection" class="connection" role="status" data-state="waiting">Waiting</div>
+    <button id="focus-view" type="button" hidden aria-pressed="false">Focus</button>
+    <button id="display-settings" type="button" aria-haspopup="dialog">Display</button>
+  </div>
 </header>
+<div id="glance-toolbar" hidden>
+  <button id="glance-exit">Exit Glance</button>
+  <span id="glance-connection" class="connection" role="status"></span>
+  <button id="glance-dim">Shade screen</button>
+</div>
 <div class="layout">
   <nav aria-label="Companion views">
+    <button id="tool-library" aria-haspopup="dialog">All tools</button>
     <button data-tab="status" aria-current="page">Status</button>
+    <button data-tab="glance">Glance</button>
     <button data-tab="workspace">Workspace</button>
     <button data-tab="planner" data-ffx hidden>Goal Plan</button>
     <button data-tab="guide">Guide</button>
@@ -109,5 +123,7 @@
   <main id="panel" tabindex="-1"></main>
   <section id="guide" class="guide-reader" aria-label="Jegged walkthrough" hidden></section>
 </div>
+<dialog id="shell-dialog" aria-labelledby="shell-dialog-title"></dialog>
+<button id="glance-shade" hidden aria-label="Wake Glance"></button>
 </body>
 </html>

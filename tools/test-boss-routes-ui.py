@@ -29,7 +29,12 @@ with sync_playwright() as pw:
             return main.get_by_role("button", name=name, exact=True)
 
         def nav(tab):
-            page.locator(f'nav [data-tab="{tab}"]').click()
+            shortcut = page.locator(f'nav [data-tab="{tab}"]')
+            if shortcut.is_visible():
+                shortcut.click()
+            else:
+                page.get_by_role("button", name="All tools", exact=True).click()
+                page.locator(f'[data-shell-key="open-{tab}"]').click()
 
         def snapshot(name):
             assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")

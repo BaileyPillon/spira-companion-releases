@@ -256,6 +256,11 @@ function guideReturnAction() {
 function sendGuide(command, anchor) {
   guideFrame?.contentWindow.postMessage({command, anchor}, "*");
 }
+function syncReaderDisplay() {
+  if (!guideReady || typeof displayPrefs === "undefined") return;
+  sendGuide("reading-size",displayPrefs.size);
+  sendGuide("reading-black",displayPrefs.theme === "black");
+}
 
 function refreshGuideControls() {
   if (!guideStatus) return;
@@ -345,10 +350,14 @@ function openGuide() {
   guideSuggestionBox = element("aside", "guide-suggestion");
   guideSuggestionBox.setAttribute("aria-label", "Companion suggestion");
   guideSuggestionBox.hidden = true;
-  guideHost.append(bar, guideFrame, guideExit, guideSuggestionBox);
+  const footer = element("div","guide-full-actions");
+  guideHost.append(bar, guideFrame, footer, guideSuggestionBox);
   const workspace = action("Workspace", openWorkspaceFromGuide);
   workspace.classList.add("guide-workspace");
-  guideHost.append(workspace);
+  footer.append(workspace);
+  const tools = action("All tools", () => openToolLibrary());
+  tools.classList.add("guide-library");
+  footer.append(tools,guideExit);
   refreshGuideControls();
   guideFrame.src = guideOrigin + "/walkthrough.html";
   clearTimeout(guideWait);
@@ -410,6 +419,7 @@ window.addEventListener("message", event => {
   const {kind} = event.data || {};
   if (kind === "ready") {
     guideReady = true;
+    syncReaderDisplay();
     guideFailed = false;
     clearTimeout(guideWait);
     syncGuide();
